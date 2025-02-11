@@ -1,0 +1,25 @@
+---
+title: "Projet ADM Q3"
+author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
+date: "`r Sys.Date()`"
+output: 
+  htlm_document:
+    code_folding: hide
+    toc: TRUE
+    cache: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="Figs/", echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE)
+```
+
+```{r, include= F}
+library(tidyverse)
+library(ade4)
+
+#library(rpart)
+
+#library(MASS)
+```
