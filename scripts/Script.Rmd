@@ -11,23 +11,23 @@ editor_options:
 knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="Figs/", echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE)
 ```
 
-```{r}
+```{r, include= F}
+library(tidyverse)
 library(ade4)
 
-library(rpart)
+#library(rpart)
 
-library(MASS)
+#library(MASS)
 ```
 
-
-Ouverture données : 
+Ouverture données :
 
 ```{r}
-habitat = read.table("habitat.tsv", sep = "\t",
+habitat = read.table("../data/habitat.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
-especes = read.table("especes.tsv", sep = "\t",
+especes = read.table("../data/especes.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
-commu = read.table("communautes.tsv", sep = "\t",
+commu = read.table("../data/communautes.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
 ```
 
@@ -35,15 +35,67 @@ commu = read.table("communautes.tsv", sep = "\t",
 plot(habitat)
 plot(commu)
 plot(especes)
+```
 
+
+## QUESTION 1
+
+communautés :
+
+--\> quelles sont les espèces qui vivent ensemble ? même localisation
+
+Ex: Est-ce que pinson toujours avec pie ?
+
+Quand il fait chaud, les pinsons ne blairent plus les pies ? --\> habitat : différentes répartitions selon la localisation ?
+
+==\> impact de l'environnement sur la répartition des espèces --\> interactions ou évitements
+
+Faire une ACM **(Analyse des Correspondances Multiples)**
+
+![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXdUDZtYExwQpMmshi_qPu-2hekY_j01YyBLR0rHlv31bxwCZk6U05KwLUYLU7l33lk9dSEr5rLoph9id4foSGljJfQWu4MwHwyPpXFVnmAGKo7eSWA4_Q4mgZady4TAXfq8TbVitQ?key=A9rKyC2UVfLMb7s95vMu3P7t)
+
+ici :
+
+-   variable = espèce
+
+-   individu = localisation
+
+```{r}
+summary(commu)
+commu.asfact = data_frame(matrix(nrow = length(commu[,1]), ncol = length(commu[1,])))
+for (i in 1:length(commu[1,])){
+  commu.asfact[,i] = as.factor(as.character(commu[,i]))
+}
+```
+
+Test Chi² ==> H0 : indépendance des données
+
+```{r}
+  suppressWarnings(chisq.test(commu))
+```
+
+Il y a dépendance ==> on peut commencer a chercher du lien
+
+```{r}
+acm1 = dudi.acm(commu.asfact)
 ```
 
 ```{r}
+summary(acm1)
+acm1$cr
+```
 
+```{r}
+s.corcircle(acm1$li,
+            grid = F)
+scatter(acm1)
 ```
 
 
+## QUESTION 2
 
+> espèces : caractéristiques
 
+> habitat : caractéristiques
 
-
+==\> impact de l'habitat sur les caractéristiques de l'espèce --\> petit ou grand selon la température, etc …
