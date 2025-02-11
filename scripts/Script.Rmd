@@ -11,21 +11,36 @@ editor_options:
 knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="Figs/", echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE)
 ```
 
+```{r}
+library(ade4)
+
+library(rpart)
+
+library(MASS)
+```
+
+
 Ouverture données : 
 
 ```{r}
 habitat = read.table("habitat.tsv", sep = "\t",
-                     stringsAsFactors = T, header = T)
+                     stringsAsFactors = T, header = T, na.strings = T)
 especes = read.table("especes.tsv", sep = "\t",
-                     stringsAsFactors = T, header = T)
+                     stringsAsFactors = T, header = T, na.strings = T)
 commu = read.table("communautes.tsv", sep = "\t",
-                     stringsAsFactors = T, header = T)
+                     stringsAsFactors = T, header = T, na.strings = T)
 ```
 
 ```{r}
-plot(habitat); plot(especes); plot(commu)
+plot(habitat)
+plot(commu)
+plot(especes)
+
 ```
 
+```{r}
+
+```
 
 
 
