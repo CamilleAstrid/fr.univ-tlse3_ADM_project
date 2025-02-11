@@ -1,0 +1,53 @@
+DATA
+* communautés
+* habitat
+* espèces
+
+QUESTION 1)
+
+--> communautés : quelles sont les espèces qui vivent ensemble ? même localisation
+Est-ce que pinson toujours avec pie ?
+--> habitat : différentes répartitions selon la localisation ?
+Quand il fait chaud, les pinsons ne blairent plus les pies ?
+
+==> impact de l'environnement sur la répartition des espèces
+--> interactions ou évitements
+
+
+QUESTION 2)
+
+--> espèces : caractéristiques
+--> habitat : caractéristiques
+
+==> impact de l'habitat sur les caractéristiques de l'espèce
+--> petit ou grand selon la température, etc …
+
+
+QUESTION 3)
+
+--> habitat : urbanisation
+--> communautés : répartition des espèces
+
+==> impact de l'urbanisation sur la répartition attendues naturelles des espèces
+
+
+QUESTION 4)
+
+--> habitat : urbanisation
+--> espèces : taille
+
+==> impact de l'urbanisation sur la taille des oiseaux (diminution de la taille pour se cacher de l'Homme ?)
+
+
+QUESTION 5)
+
+--> habitat : urbanisation
+--> espèces : protégée ou non ?
+
+==> est-ce que les oiseaux protégés sont davantages présents dans les milieux urbains : protection intense par l'Homme, abondance de nourriture, absence de prédateurs, habitats cachés et sécuritaires...
+
+
+
+
+
+
