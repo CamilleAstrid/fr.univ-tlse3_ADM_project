@@ -2,7 +2,11 @@
 title: "Projet ADM"
 author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  htlm_document:
+    code_folding: hide
+    toc: TRUE
+    cache: TRUE
 editor_options: 
   chunk_output_type: console
 ---
