@@ -24,4 +24,65 @@ library(ade4)
 #library(MASS)
 ```
 
+--> communautés : quelles sont les espèces qui vivent ensemble ? même localisation ? exemple : Est-ce que pinson toujours avec pie ?
+--> habitat : différentes répartitions selon la localisation ? exemple : Quand il fait chaud, les pinsons ne blairent plus les pies ?
+
+==> impact de l'environnement sur la répartition des espèces
+--> interactions ou évitements
+
+ANALYSE :
+==> test du Chi² pour vérifier la dépendance entre les données localisations et présence de l'espèce
+==> ACM(commu) : nous avons des données utilisant des modalités simples avec j individus et i localisations
+==> expected : groupes d'oiseaux, oiseaux "ubiquitaires"
+==> test corrélation des variables entre-elles pour diminuer le nombre de variables à étudier
+==> ACP(habitat) : lissage des données qualitatives au besoin, réduction du nombre de variables
+==> co-inertie = ACM+ACP : couplage de tableaux entre habitat et répartition espèces
+==> expected : présence de cluster en fonction de certaines caractéristiques du milieu
+
+==> conclure : comportements différents selon la qualité de vie du milieu (caractéristiques ciblées par l'analyse)
+
+
+Ouverture des documents :
+
+```{r}
+habitat = read.table("../data/habitat.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+especes = read.table("../data/especes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+commu = read.table("../data/communautes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+```
+
+
+Test du X² : indépendance entre présence de l'espèce et caractéristiques du milieux ?
+
+```{r}
+# présence de l'espèce : commu colonnes
+# caractéristiques du milieu : habitat lignes
+
+# chi-2 entre espèce et chaque caractéristique du milieu
+
+habitat = habitat[,-2:-3]
+
+chisq.test(commu, habitat)
+
+taille = length(commu[,1])
+
+file.create("chi-2_q1_export.txt")
+file.edit()
+
+for (index_espece in 1:taille){
+  for (index_localisation in 1:taille){
+    data_chi2_q1 = chisq.test(commu[,index_espece], habitat[,index_localisation])
+    pvalue = data_chi2_q1$p.value
+    texte = paste(paste(commu[,index_espece], habitat[,index_localisation], sep = ","), pvalue, sep = ",")
+    write.csv(x = texte,
+              file = "chi-2_q1_export.txt",
+              append = TRUE,
+              fileEncoding = "UTF-8")
+  }
+}
+
+
+```
 
