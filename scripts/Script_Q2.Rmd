@@ -2,12 +2,7 @@
 title: "Projet ADM Q2"
 author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
 date: "`r Sys.Date()`"
-output: 
-  htlm_document:
-    code_folding: hide
-    toc: TRUE
-    cache: TRUE
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -23,3 +18,90 @@ library(ade4)
 
 #library(MASS)
 ```
+
+======================= QUESTION 2 =======================
+
+--> espèces : caractéristiques
+
+--> habitat : caractéristiques
+
+    ==> impact de l'habitat sur les caractéristiques de l'espèce
+
+--> petit ou grand selon la température, etc …
+
+Ouverture des données : 
+
+```{r}
+habitat = read.table("../data/habitat.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+especes = read.table("../data/especes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+commu = read.table("../data/communautes.tsv", sep = "\t", stringsAsFactors = T, header = T, na.strings = T)
+
+habitat = habitat[,-2:-3]
+habitat[,2:3] = habitat[,2:3]/1e5 ; habitat[15] = habitat[15]/1e3
+name = colnames(habitat)
+name[2:3] = c("long/1e5","lat/1e5"); name[15] = "prec/1e3"
+colnames(habitat) = name
+```
+
+ANALYSE :
+
+####  ==> extraire informations précédentes = subset par colonnes dont on extrait les numéros des localisations
+
+Création des subsets de numéro de lieu ayant des Gem (Colombe.a.croissants)
+```{r}
+vectNom = names(commu[2:17])
+
+listSubsets = data.frame(matrix(nrow = length(vectNom), ncol = length(habitat[1,]) - 3))
+colnames(listSubsets) = vectNom
+
+listSubsets <- list()
+for (i in 1:length(vectNom)) {
+  especesActu = vectNom[i]
+  foosubset = subset(commu$IdPE, commu[[i+1]] == 1)  
+  listSubsets[[especesActu]] <- foosubset
+}
+
+listSubsets$Gem
+```
+
+On a toutes les localisation de chaque espèce
+
+Exemple d'appel pour les localisation de Gem : 
+listSubsets$gem
+
+####  ==> moyenne des données sur l'habitat pour chaque colonne du subset (espèces)
+
+Pour se donner une idée de vers ou on vas, nous allons regarder chaque moyenne de variables 
+
+```{r}
+par(mfrow = c(1,1))
+ExGem = colMeans(subset(habitat, habitat$IdPE %in% listSubsets$Gem))
+barplot(ExGem[-1],
+         width = 2,las = 2)
+```
+
+
+####  ==> expliquer chacune des variables de l'espèce en fonction des variables de l'environnement
+
+    --> taille petite quand température haute, alimentation quand hydrométrie élevée
+
+####  ==> juxtaposition des tableaux :
+    
+    tab1 --> subset = colnames(especes) + moyenne de chaque caractéristique des milieux
+
+transposé de tab1 sur tab2
+    
+    tab2 --> especes
+    ==> expected : certaines caractéristiques du milieu explique certaines caractéristiques de l'espèce
+
+####  ==> conclure :
+  
+
+
+
+
+
+
+

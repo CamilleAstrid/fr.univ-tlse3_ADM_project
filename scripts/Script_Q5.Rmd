@@ -23,3 +23,33 @@ library(ade4)
 
 #library(MASS)
 ```
+
+======================= QUESTION 4 =======================
+
+--\> habitat : urbanisation
+
+--\> espèces : taille
+
+Ouverture des données
+
+```{r}
+habitat = read.table("../data/habitat.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+especes = read.table("../data/especes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+```
+
+==\> impact de l'urbanisation sur la taille des oiseaux (diminution de la taille pour se cacher de l'Homme ?)
+
+ANALYSE :
+
+-   ==\> chi² entre espece\$taille et habitat\$bati
+
+Problème, on a des problèmes de dimentions, nécécité de faire des subsets : 
+
+
+
+
+-   ==\> modèle linéaire
+
+==\> conclure :
