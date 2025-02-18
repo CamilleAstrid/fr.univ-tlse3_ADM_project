@@ -39,9 +39,9 @@ especes = read.table("../data/especes.tsv", sep = "\t",
 commu = read.table("../data/communautes.tsv", sep = "\t", stringsAsFactors = T, header = T, na.strings = T)
 
 habitat = habitat[,-2:-3]
-habitat[,2:3] = habitat[,2:3]/1e5 ; habitat[15] = habitat[15]/1e3
+habitat[,2:3] = habitat[,2:3]/1e5 ;# habitat[15] = habitat[15]/1e3
 name = colnames(habitat)
-name[2:3] = c("long/1e5","lat/1e5"); name[15] = "prec/1e3"
+name[2:3] = c("long/1e5","lat/1e5");# name[15] = "prec/1e3"
 colnames(habitat) = name
 ```
 
@@ -54,9 +54,7 @@ Création des subsets de numéro de lieu ayant des Gem (Colombe.a.croissants)
 vectNom = names(commu[2:17])
 
 listSubsets = data.frame(matrix(nrow = length(vectNom), ncol = length(habitat[1,]) - 3))
-colnames(listSubsets) = vectNom
 
-listSubsets <- list()
 for (i in 1:length(vectNom)) {
   especesActu = vectNom[i]
   foosubset = subset(commu$IdPE, commu[[i+1]] == 1)  
@@ -78,14 +76,81 @@ Pour se donner une idée de vers ou on vas, nous allons regarder chaque moyenne 
 ```{r}
 par(mfrow = c(1,1))
 ExGem = colMeans(subset(habitat, habitat$IdPE %in% listSubsets$Gem))
-barplot(ExGem[-1],
-         width = 2,las = 2)
+plot(ExGem[-1])
 ```
 
+Généraliser par une boucle tapply : 
+
+```{r}
+ExMat <- t(sapply(names(listSubsets), function(name) {
+  colMeans(subset(habitat, habitat$IdPE %in% listSubsets[[name]]))
+}))
+ExMat = ExMat[,-1]
+```
+
+/!\\ sapply == tapply mais pour sortir une matrice et pas une liste /!\\
+
+```{r}
+boxplot(ExMat,
+     pch = 3, col = "darkred",
+     las = 2, log = "y")
+labels
+```
+
+Des boxplots plus interresant : 
+
+  1. Point d'écoute : 
+
+```{r}
+plot(ExMat[,1:2],
+     pch = 3, col = "brown")
+```
+
+  2. Occupation du sol : 
+  
+```{r}
+boxplot(ExMat[,3:7],
+     pch = 3, col = "darkgreen")
+```
+
+  3. Fragmentation : 
+  
+```{r}
+boxplot(ExMat[,8:11],
+     pch = 3, col = "salmon")
+```
+
+  4. Topographie
+
+```{r}
+plot(ExMat[,12:13],
+     pch = 3, col = "black")
+```
+
+  5. condition topographique
+  
+```{r}
+plot(ExMat[,14:15],
+     pch = 3, col = "darkblue")
+```
+
+  6. Urbanisation
+  
+```{r}
+boxplot(ExMat[,16],
+     pch = 3, col = "darkgray")
+```
+  
 
 ####  ==> expliquer chacune des variables de l'espèce en fonction des variables de l'environnement
 
     --> taille petite quand température haute, alimentation quand hydrométrie élevée
+
+```{r}
+dudi.pca()
+```
+
+
 
 ####  ==> juxtaposition des tableaux :
     
@@ -98,6 +163,9 @@ transposé de tab1 sur tab2
 
 ####  ==> conclure :
   
+
+
+
 
 
 
