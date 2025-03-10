@@ -14,9 +14,9 @@ knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="F
 library(tidyverse)
 library(ade4)
 
-#library(rpart)
+library(rpart)
 
-#library(MASS)
+library(MASS)
 ```
 
 ======================= QUESTION 2 =======================

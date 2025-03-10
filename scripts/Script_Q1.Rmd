@@ -3,7 +3,7 @@ title: "Projet ADM Q1"
 author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
 date: "`r Sys.Date()`"
 output: 
-  htlm_document:
+  html_document:
     code_folding: hide
     toc: TRUE
     cache: TRUE
@@ -11,7 +11,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r include=FALSE}
+```{r include=FALSE, eval=FALSE}
 knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="Figs/", echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE)
 ```
 
@@ -57,32 +57,90 @@ commu = read.table("../data/communautes.tsv", sep = "\t",
 Test du X² : indépendance entre présence de l'espèce et caractéristiques du milieux ?
 
 ```{r}
-# présence de l'espèce : commu colonnes
-# caractéristiques du milieu : habitat lignes
+res = chisq.test(commu[,2:17]) ; res$
 
-# chi-2 entre espèce et chaque caractéristique du milieu
-
-habitat = habitat[,-2:-3]
-
-chisq.test(commu, habitat)
-
-taille = length(commu[,1])
-
-file.create("chi-2_q1_export.txt")
-file.edit()
-
-for (index_espece in 1:taille){
-  for (index_localisation in 1:taille){
-    data_chi2_q1 = chisq.test(commu[,index_espece], habitat[,index_localisation])
-    pvalue = data_chi2_q1$p.value
-    texte = paste(paste(commu[,index_espece], habitat[,index_localisation], sep = ","), pvalue, sep = ",")
-    write.csv(x = texte,
-              file = "chi-2_q1_export.txt",
-              append = TRUE,
-              fileEncoding = "UTF-8")
+res2 = list()
+for (i in 2:17){
+  print(chisq.test(commu[,i])$p.value)
   }
-}
+```
 
+==> La localisation n'impacte pas la répartition des espèces.
+
+ACP normée sur environnement (habitat)
+
+```{r}
+plot(habitat)
+
+res = chisq.test(habitat[,4:19]) ; res
+# Dépendance des données
+
+acp_habitat = dudi.pca(habitat[,4:19], scale=T, nf = 2, scannf = F)
+plot(acp_habitat$li,
+     pch = 3)
+s.corcircle(acp_habitat$co,
+            grid = F)
+acp_habitat$c1
+# 1 variable expliquant peu le modèle : hydro (faible pourcentage d'explication des axes, <10%)
+```
+
+AFC sur répartition des espèces (commu)
+
+```{r}
+plot(commu)
+
+res = chisq.test(commu[,2:17]) ; res
+# Indépendance des données
+
+afc1 = dudi.coa(commu, nf=2, scannf = F)
+afc1
+barplot(afc1$eig)
+scatter(afc1)
+```
+
+ACC sur les données HABITAT x COMMU
+
+```{r}
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
