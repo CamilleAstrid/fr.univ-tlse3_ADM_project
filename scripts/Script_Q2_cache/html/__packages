@@ -9,3 +9,6 @@ stringr
 forcats
 lubridate
 ade4
+permute
+lattice
+vegan

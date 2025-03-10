@@ -13,7 +13,7 @@ knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="F
 ```{r, include= F}
 library(tidyverse)
 library(ade4)
-
+library(vegan)
 #library(rpart)
 
 #library(MASS)
@@ -51,14 +51,17 @@ ANALYSE :
 
 Création des subsets de numéro de lieu ayant des Gem (Colombe.a.croissants)
 ```{r}
+# Récupération des noms des colonnes correspondant aux espèces (colonnes 2 à 17)
 vectNom = names(commu[2:17])
 
-listSubsets = data.frame(matrix(nrow = length(vectNom), ncol = length(habitat[1,]) - 3))
-
+# Création d'une liste vide pour stocker les sous-ensembles
+listSubsets = list()
+# Parcours de toutes les espèces
 for (i in 1:length(vectNom)) {
   especesActu = vectNom[i]
-  foosubset = subset(commu$IdPE, commu[[i+1]] == 1)  
-  listSubsets[[especesActu]] <- foosubset
+  # Extraction des numéros de lieu (IdPE) où l'espèce a une présence (valeur 1)
+  foosubset = commu$IdPE[commu[[especesActu]] == 1]
+  listSubsets[[especesActu]] = foosubset
 }
 
 listSubsets$Gem
@@ -82,7 +85,7 @@ plot(ExGem[-1])
 Généraliser par une boucle tapply : 
 
 ```{r}
-ExMat <- t(sapply(names(listSubsets), function(name) {
+ExMat = t(sapply(names(listSubsets), function(name) {
   colMeans(subset(habitat, habitat$IdPE %in% listSubsets[[name]]))
 }))
 ExMat = ExMat[,-1]
@@ -90,71 +93,213 @@ ExMat = ExMat[,-1]
 
 /!\\ sapply == tapply mais pour sortir une matrice et pas une liste /!\\
 
+
+## ChiTest² 
+
+```{r}
+chisq.test(habitat[,2:17])
+
+for (i in 2:17){
+  print(chisq.test(habitat[,i]))
+}
+```
+
+
 ```{r}
 boxplot(ExMat,
      pch = 3, col = "darkred",
      las = 2, log = "y")
-labels
 ```
 
 Des boxplots plus interresant : 
 
-  1. Point d'écoute : 
 
 ```{r}
+par(mfrow = c(1,2))
+
+#   1. Point d'écoute : 
+
 plot(ExMat[,1:2],
      pch = 3, col = "brown")
-```
 
-  2. Occupation du sol : 
+acp.Ecoute = dudi.pca(ExMat[,1:2]
+                 ,scannf = FALSE, nf = 1)
+plot(acp.Ecoute$li,
+     pch = 3, col = "brown")
+
+#corrélation +
+
+#  2. Occupation du sol : 
   
-```{r}
 boxplot(ExMat[,3:7],
      pch = 3, col = "darkgreen")
-```
 
-  3. Fragmentation : 
-  
-```{r}
+acp.Ocuu = dudi.pca(ExMat[,3:7]
+                 ,scannf = FALSE, nf = 2)
+plot(acp.Ocuu$li,
+     pch = 3, col = "darkgreen")
+
+# pas de corrélation
+
+#  3. Fragmentation : 
+
 boxplot(ExMat[,8:11],
      pch = 3, col = "salmon")
-```
 
-  4. Topographie
 
-```{r}
+acp.Frag = dudi.pca(ExMat[,8:11]
+                 ,scannf = FALSE, nf = 2)
+plot(acp.Frag$li,
+     pch = 3, col = "salmon")
+
+# pas de corrélation
+
+#  4. Topographie
+
 plot(ExMat[,12:13],
      pch = 3, col = "black")
-```
 
-  5. condition topographique
-  
-```{r}
+acp.Topo = dudi.pca(ExMat[,12:13]
+                 ,scannf = FALSE, nf = 1)
+plot(acp.Topo$li,
+     pch = 3, col = "black")
+
+# corrélation +
+
+#  5. condition topographique
+
 plot(ExMat[,14:15],
      pch = 3, col = "darkblue")
-```
 
-  6. Urbanisation
-  
-```{r}
+acp.CondTopo = dudi.pca(ExMat[,14:15]
+                 ,scannf = FALSE, nf = 1)
+plot(acp.CondTopo$li,
+     pch = 3, col = "darkblue")
+
+# corrélation -
+
+#  6. Urbanisation
+
+par(mfrow = c(1,1))
 boxplot(ExMat[,16],
      pch = 3, col = "darkgray")
+
+# c'est une ligne
+
+# 7. Total
+par(mfrow = c(1,2))
+boxplot(ExMat,
+     pch = 3, col = "darkred",
+     las = 2, log = "y")
+acp.Total = dudi.pca(ExMat[,1:15], scannf = FALSE, nf = 2)
+
+# bordel imonde
 ```
-  
+
+* Point d'écoute semble avoir une corrélation positive 
+
+* Occupation du sol ne semble pas être corrélé
+
+* Fragmentation ne semble pas être corrélé
+
+* Topographie semble être corrélé positivement
+
+* condition topographique semble être corrélé négativement
 
 ####  ==> expliquer chacune des variables de l'espèce en fonction des variables de l'environnement
 
-    --> taille petite quand température haute, alimentation quand hydrométrie élevée
+    --> Ex :  taille petite quand température haute, alimentation quand hydrométrie élevée
+
+Faire des AFD par catégorie pour voir si impact sur l'alimentation 
 
 ```{r}
-dudi.pca()
+# discrimin = AFD
+# les arg : (acp, var qualitative)
+afd.Ecoute.Taille = discrimin(acp.Ecoute,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Ecoute.Taille)
+
+par(mfrow = c(1,2))
+
+s.arrow(afd.Ecoute.Taille$fa,
+        grid = F)
+
+s.corcircle(afd.Ecoute.Taille$li,
+        grid = F)
+
+
+#########
+afd.Ocuu.Taille = discrimin(acp.Ocuu,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Ocuu.Taille)
+
+par(mfrow = c(1,2))
+
+s.arrow(afd.Ocuu.Taille$fa,
+        grid = F)
+
+s.corcircle(afd.Ocuu.Taille$li,
+        grid = F)
+
+########
+afd.Frag.Taille = discrimin(acp.Frag,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Frag.Taille)
+
+par(mfrow = c(1,2))
+
+s.arrow(afd.Frag.Taille$fa,
+        grid = F)
+
+s.corcircle(afd.Frag.Taille$li,
+        grid = F)
+########
+afd.Mat.Taille = discrimin(acp.Topo,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Ecoute.Taille)
+
+par(mfrow = c(1,2))
+
+s.arrow(afd.Mat.Taille$fa,
+        grid = F)
+
+s.corcircle(afd.Mat.Taille$li,
+        grid = F)
+
+########
+afd.CondTopo.Taille = discrimin(acp.CondTopo,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.CondTopo.Taille)
+
+par(mfrow = c(1,2))
+
+s.arrow(afd.CondTopo.Taille$fa,
+        grid = F)
+
+s.corcircle(afd.CondTopo.Taille$li,
+        grid = F)
 ```
 
+Ces analyses par catégorie d'habitat nous donne la significativité de l'impact par groupe des espèces : 
 
 
 ####  ==> juxtaposition des tableaux :
     
+TODO : plz help 
     tab1 --> subset = colnames(especes) + moyenne de chaque caractéristique des milieux
+    
+  AKA : ACM 
+
+```{r}
+
+
+```
+
 
 transposé de tab1 sur tab2
     
