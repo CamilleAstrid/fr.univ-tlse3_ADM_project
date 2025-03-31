@@ -13,10 +13,12 @@ knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="F
 ```{r, include= F}
 library(tidyverse)
 library(ade4)
+
 library(vegan)
 #library(rpart)
 
-#library(MASS)
+library(rpart)
+library(MASS)
 ```
 
 ======================= QUESTION 2 =======================
@@ -331,6 +333,6 @@ ___
 
 Global : on ne peut pas classer la taille des espèces en fonction de l’environnement
 
-
+Cependant on voit que on peut séparer les tailles des espèces par l’environnement
 
 
