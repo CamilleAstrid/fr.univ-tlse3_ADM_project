@@ -39,9 +39,7 @@ especes = read.table("../data/especes.tsv", sep = "\t",
 commu = read.table("../data/communautes.tsv", sep = "\t", stringsAsFactors = T, header = T, na.strings = T)
 
 habitat = habitat[,-2:-3]
-habitat[,2:3] = habitat[,2:3]/1e5 ;# habitat[15] = habitat[15]/1e3
 name = colnames(habitat)
-name[2:3] = c("long/1e5","lat/1e5");# name[15] = "prec/1e3"
 colnames(habitat) = name
 ```
 
@@ -82,6 +80,8 @@ ExGem = colMeans(subset(habitat, habitat$IdPE %in% listSubsets$Gem))
 plot(ExGem[-1])
 ```
 
+Nous voyons que les unitées sont biaisées, il est donc nécécaire de normaliser
+
 Généraliser par une boucle tapply : 
 
 ```{r}
@@ -104,15 +104,37 @@ for (i in 2:17){
 }
 ```
 
+Les colonnes satisfaisant le Chi-test : 
+
+* logitude
+* latitude
+* agri
+* arbu
+* hydro
+* foret
+* ecot
+* temp
+* bati
 
 ```{r}
 boxplot(ExMat,
      pch = 3, col = "darkred",
-     las = 2, log = "y")
+     log = "y")
 ```
 
-Des boxplots plus interresant : 
+Boxplot avec une normalisation au log10()
 
+```{r}
+ExMat.meannorm = scale(ExMat, center = T, scale = T)
+```
+
+```{r}
+boxplot.matrix(ExMat.meannorm, col = "darkred")
+```
+
+normalisation centré réduite à la moyenne
+
+Des boxplots plus interresant (par classe): 
 
 ```{r}
 par(mfrow = c(1,2))
@@ -122,7 +144,7 @@ par(mfrow = c(1,2))
 plot(ExMat[,1:2],
      pch = 3, col = "brown")
 
-acp.Ecoute = dudi.pca(ExMat[,1:2]
+acp.Ecoute = dudi.pca(ExMat[,1:2], center = TRUE, scale = TRUE,
                  ,scannf = FALSE, nf = 1)
 plot(acp.Ecoute$li,
      pch = 3, col = "brown")
@@ -134,8 +156,8 @@ plot(acp.Ecoute$li,
 boxplot(ExMat[,3:7],
      pch = 3, col = "darkgreen")
 
-acp.Ocuu = dudi.pca(ExMat[,3:7]
-                 ,scannf = FALSE, nf = 2)
+acp.Ocuu = dudi.pca(ExMat[,3:7], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 2)
 plot(acp.Ocuu$li,
      pch = 3, col = "darkgreen")
 
@@ -147,8 +169,8 @@ boxplot(ExMat[,8:11],
      pch = 3, col = "salmon")
 
 
-acp.Frag = dudi.pca(ExMat[,8:11]
-                 ,scannf = FALSE, nf = 2)
+acp.Frag = dudi.pca(ExMat[,8:11], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 2)
 plot(acp.Frag$li,
      pch = 3, col = "salmon")
 
@@ -159,8 +181,8 @@ plot(acp.Frag$li,
 plot(ExMat[,12:13],
      pch = 3, col = "black")
 
-acp.Topo = dudi.pca(ExMat[,12:13]
-                 ,scannf = FALSE, nf = 1)
+acp.Topo = dudi.pca(ExMat[,12:13], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 1)
 plot(acp.Topo$li,
      pch = 3, col = "black")
 
@@ -171,8 +193,8 @@ plot(acp.Topo$li,
 plot(ExMat[,14:15],
      pch = 3, col = "darkblue")
 
-acp.CondTopo = dudi.pca(ExMat[,14:15]
-                 ,scannf = FALSE, nf = 1)
+acp.CondTopo = dudi.pca(ExMat[,14:15], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 1)
 plot(acp.CondTopo$li,
      pch = 3, col = "darkblue")
 
@@ -191,7 +213,8 @@ par(mfrow = c(1,2))
 boxplot(ExMat,
      pch = 3, col = "darkred",
      las = 2, log = "y")
-acp.Total = dudi.pca(ExMat[,1:15], scannf = FALSE, nf = 2)
+acp.Total = dudi.pca(ExMat[,1:15], center = TRUE, scale = TRUE,
+                     scannf = FALSE, nf = 2)
 
 # bordel imonde
 ```
@@ -220,14 +243,6 @@ afd.Ecoute.Taille = discrimin(acp.Ecoute,as.factor(especes$Taille)
 
 plot(afd.Ecoute.Taille)
 
-par(mfrow = c(1,2))
-
-s.arrow(afd.Ecoute.Taille$fa,
-        grid = F)
-
-s.corcircle(afd.Ecoute.Taille$li,
-        grid = F)
-
 
 #########
 afd.Ocuu.Taille = discrimin(acp.Ocuu,as.factor(especes$Taille)
@@ -235,13 +250,7 @@ afd.Ocuu.Taille = discrimin(acp.Ocuu,as.factor(especes$Taille)
 
 plot(afd.Ocuu.Taille)
 
-par(mfrow = c(1,2))
 
-s.arrow(afd.Ocuu.Taille$fa,
-        grid = F)
-
-s.corcircle(afd.Ocuu.Taille$li,
-        grid = F)
 
 ########
 afd.Frag.Taille = discrimin(acp.Frag,as.factor(especes$Taille)
@@ -249,26 +258,13 @@ afd.Frag.Taille = discrimin(acp.Frag,as.factor(especes$Taille)
 
 plot(afd.Frag.Taille)
 
-par(mfrow = c(1,2))
 
-s.arrow(afd.Frag.Taille$fa,
-        grid = F)
-
-s.corcircle(afd.Frag.Taille$li,
-        grid = F)
 ########
 afd.Mat.Taille = discrimin(acp.Topo,as.factor(especes$Taille)
                  , scannf = FALSE, nf = 2)
 
 plot(afd.Ecoute.Taille)
 
-par(mfrow = c(1,2))
-
-s.arrow(afd.Mat.Taille$fa,
-        grid = F)
-
-s.corcircle(afd.Mat.Taille$li,
-        grid = F)
 
 ########
 afd.CondTopo.Taille = discrimin(acp.CondTopo,as.factor(especes$Taille)
@@ -276,44 +272,64 @@ afd.CondTopo.Taille = discrimin(acp.CondTopo,as.factor(especes$Taille)
 
 plot(afd.CondTopo.Taille)
 
-par(mfrow = c(1,2))
-
-s.arrow(afd.CondTopo.Taille$fa,
-        grid = F)
-
-s.corcircle(afd.CondTopo.Taille$li,
-        grid = F)
-```
-
-Ces analyses par catégorie d'habitat nous donne la significativité de l'impact par groupe des espèces : 
-
-
-####  ==> juxtaposition des tableaux :
-    
-TODO : plz help 
-    tab1 --> subset = colnames(especes) + moyenne de chaque caractéristique des milieux
-    
-  AKA : ACM 
-
-```{r}
-
 
 ```
 
-
-transposé de tab1 sur tab2
-    
-    tab2 --> especes
-    ==> expected : certaines caractéristiques du milieu explique certaines caractéristiques de l'espèce
 
 ####  ==> conclure :
-  
 
+Lieu d'écoute vs Taille des espèces  : 
 
+> pas de création concluante de classe
 
+12 et 23 peu expliquer par les 2 axes
 
+20 et 24 ont les coordonnées similaires
+9 et 30 // (// == pareil qu'au dessus)
+11 et 14 //
+11, 14 et 20,24 sont opposé
 
+___
 
+Ocuu vs Taille des espèces :
+
+> toujours aucune classe concluante à part pour grouper le groupe 12 : Moqueur.grivotte
+
+15 peu expliquer par le modèle
+arbu et hydro sont peu explicatif de notre modèle
+
+l'espèce 23 a tendance a se retrouver en foret avec des grandes surfaces agricole
+
+___
+
+Frag vs Taille des espèces : 
+
+> rien de concluant
+
+Les 4 variables sont explicative mais ont des vélocités colinéaires
+
+l'espèce 30 est très ecot mais très peu heter et lisi
+
+___
+
+Topo vs Taille des espèces : 
+
+> pas de création concluante de classe
+
+Les 2 variables sont explicative mais ont des vélocités colinéaires
+
+sépare les espèces correctment
+___
+
+CondTopo vs Taille des espèces : 
+
+> same
+
+Les 2 variables sont explicative mais ont des vélocités colinéaires
+
+___
+
+Global : on ne peut pas classer la taille des espèces en fonction de l’environnement
 
 
 
