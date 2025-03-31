@@ -23,3 +23,190 @@ library(ade4)
 
 #library(MASS)
 ```
+
+======================= QUESTION 4) =======================
+
+--> habitat : urbanisation
+--> espèces : taille
+
+==> impact de l'urbanisation sur la taille des oiseaux (diminution de la taille pour se cacher de l'Homme ?)
+
+
+
+```{r}
+habitat = read.table("../data/habitat.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+habitat = habitat[,-2:-3] # on supprime le qualitatif
+
+especes = read.table("../data/especes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+
+commu = read.table("../data/communautes.tsv", sep = "\t",
+                   stringsAsFactors = T, header = T, na.strings = T)
+```
+
+## on vas chercher si ya une corrélation entre la taille et l'espèce de volatile : 
+
+### création des subsets par espèces
+```{r}
+# Récupération des noms des colonnes correspondant aux espèces (colonnes 2 à 17)
+vectNom <- c("Myo", "Gem", "Meh", "Col", "Lon", "Cir", "Euh", "Orc", "Euj", "Cof", "Dep", "Mas", "Maf", "Saa", "Elm", "Tul")
+
+# Création d'une liste vide pour stocker les sous-ensembles
+listSubsets = list()
+# Parcours de toutes les espèces
+for (i in 1:length(vectNom)) {
+  especesActu = vectNom[i]
+  # Extraction des numéros de lieu (IdPE) où l'espèce a une présence (valeur 1)
+  foosubset = commu$IdPE[commu[[especesActu]] == 1]
+  listSubsets[[especesActu]] = foosubset
+}
+
+# /!\ va faire vla des lignes de variables :
+```
+
+```{r boucle chatty}
+for (i in seq_along(vectNom)) {
+  subset_name <- paste0(vectNom[i], "habitat")
+  assign(subset_name, subset(habitat, IdPE %in% listSubsets[[vectNom[i]]]))
+  
+  # Modify column 20 with corresponding 'Taille' value
+  temp_df <- get(subset_name)
+  temp_df[, 18] <- especes$Taille[i]
+  assign(subset_name, temp_df)
+}
+```
+
+
+faire les dataframes 
+```{r eval=FALSE, include=FALSE}
+Myohabitat = subset(habitat, IdPE %in% listSubsets$Myo); Myohabitat[,18] = especes$Taille[1]
+Gemhabitat = subset(habitat, IdPE %in% listSubsets$Gem); Gemhabitat[,18] = especes$Taille[2]
+Mehhabitat = subset(habitat, IdPE %in% listSubsets$Meh); Mehhabitat[,18] = especes$Taille[3]
+Colhabitat = subset(habitat, IdPE %in% listSubsets$Col); Colhabitat[,18] = especes$Taille[4]
+Lonhabitat = subset(habitat, IdPE %in% listSubsets$Lon); Lonhabitat[,18] = especes$Taille[5]
+Cirhabitat = subset(habitat, IdPE %in% listSubsets$Cir); Cirhabitat[,18] = especes$Taille[6]
+Euhhabitat = subset(habitat, IdPE %in% listSubsets$Euh); Euhhabitat[,18] = especes$Taille[7]
+Orchabitat = subset(habitat, IdPE %in% listSubsets$Orc); Orchabitat[,18] = especes$Taille[8]
+Eujhabitat = subset(habitat, IdPE %in% listSubsets$Euj); Eujhabitat[,18] = especes$Taille[9]
+Cofhabitat = subset(habitat, IdPE %in% listSubsets$Cof); Cofhabitat[,18] = especes$Taille[10]
+Dephabitat = subset(habitat, IdPE %in% listSubsets$Dep); Dephabitat[,18] = especes$Taille[11]
+Mashabitat = subset(habitat, IdPE %in% listSubsets$Mas); Mashabitat[,18] = especes$Taille[12]
+Mafhabitat = subset(habitat, IdPE %in% listSubsets$Maf); Mafhabitat[,18] = especes$Taille[13]
+Saahabitat = subset(habitat, IdPE %in% listSubsets$Saa); Saahabitat[,18] = especes$Taille[14]
+Elmhabitat = subset(habitat, IdPE %in% listSubsets$Elm); Elmhabitat[,18] = especes$Taille[15]
+Tulhabitat = subset(habitat, IdPE %in% listSubsets$Tul); Tulhabitat[,18] = especes$Taille[16]
+```
+on a les positions des oiseaux par espèces dans les n° IDPG
+
+faire les Chi² pour voir si la taille est indépendente chez chaque espèces : 
+
+
+```{r boucle chatty}
+chi_results <- list()
+for (nom in vectNom) {
+  subset_name <- paste0(nom, "habitat")
+  temp_df <- get(subset_name)
+  
+  if ("bati" %in% colnames(temp_df)) {  # Ensure 'bati' column exists
+    chi_results[[nom]] <- chisq.test(temp_df$bati)
+  } else {
+    chi_results[[nom]] <- paste("Column 'bati' not found in", subset_name)
+  }
+}
+```
+
+
+malaise,
+
+on regrope par intervalle de taille 
+
+test cor.test entre taille et urbanisation
+
+```{r}
+meanList = c()
+
+meanList = append(meanList, mean(Myohabitat$bati))
+meanList = append(meanList, mean(Gemhabitat$bati))
+meanList = append(meanList, mean(Mehhabitat$bati))
+meanList = append(meanList, mean(Colhabitat$bati))
+meanList = append(meanList, mean(Lonhabitat$bati))
+meanList = append(meanList, mean(Cirhabitat$bati))
+meanList = append(meanList, mean(Euhhabitat$bati))
+meanList = append(meanList, mean(Orchabitat$bati))
+meanList = append(meanList, mean(Eujhabitat$bati))
+meanList = append(meanList, mean(Cofhabitat$bati))
+meanList = append(meanList, mean(Dephabitat$bati))
+meanList = append(meanList, mean(Mashabitat$bati))
+meanList = append(meanList, mean(Mafhabitat$bati))
+meanList = append(meanList, mean(Saahabitat$bati))
+meanList = append(meanList, mean(Elmhabitat$bati))
+meanList = append(meanList, mean(Tulhabitat$bati))
+
+```
+
+
+on a les moyennes : chi² time :)
+
+```{r vérification validité cor.test}
+#normalité : 
+shapiro.test(meanList)
+shapiro.test(especes$Taille)
+```
+données normales
+
+```{r vérification linéralité}
+plot(meanList,especes$Taille,
+     pch =3, col = "red3") 
+```
+
+Bah pas fou mais globalement avec clémence, on semble voir une tendence à la décroissance
+
+```{r test homoscédasticité}
+library(lmtest)
+bptest(meanList~especes$Taille)
+```
+
+données homostasiques 
+
+Conditions valides : happy 
+
+```{r}
+cor.test(especes$Taille,meanList,
+         method = "pearson")
+
+cor.test(especes$Taille,meanList,
+         method = "kendall")
+
+cor.test(especes$Taille,meanList,
+         method = "spearman")
+
+```
+
+t = -1.7395, df = 14, p-value = 0.1039
+alternative hypothesis: true correlation is not equal to 0
+
+95 percent confidence interval:
+ -0.75872141  0.09372149
+
+sample estimates:
+       cor 
+-0.4215692 
+
+
+## Conclusion : 
+
+La taille de l'espèce et le taux d'urbanisation est négativement corrélé
+
+
+
+
+
+
+
+
+
+
+
+
+

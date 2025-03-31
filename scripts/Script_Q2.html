@@ -367,7 +367,8 @@ display: none;
                      stringsAsFactors = T, header = T, na.strings = T)
 especes = read.table(&quot;../data/especes.tsv&quot;, sep = &quot;\t&quot;,
                      stringsAsFactors = T, header = T, na.strings = T)
-commu = read.table(&quot;../data/communautes.tsv&quot;, sep = &quot;\t&quot;, stringsAsFactors = T, header = T, na.strings = T)
+commu = read.table(&quot;../data/communautes.tsv&quot;, sep = &quot;\t&quot;,
+                   stringsAsFactors = T, header = T, na.strings = T)
 
 habitat = habitat[,-2:-3]
 name = colnames(habitat)
