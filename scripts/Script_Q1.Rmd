@@ -15,6 +15,10 @@ editor_options:
 knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="Figs/", echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE)
 ```
 
+**/!\\ WARNING** : chi² --> test d'indépendance : H0 "Les données sont indépendantes". La p-value correspond au risque de se tromper en rejettant H0.
+Donc si p>0.05 --> on ne rejette pas H0, les données sont indépendantes, pas de relation entre elles ni d'implication.
+Donc si p<=0.05 --> on rejette H0, les données sont dépendantes, il existe une relation entre elles.
+
 ```{r, include= F}
 library(tidyverse)
 library(ade4)
@@ -27,7 +31,7 @@ library(vegan)
 ==> impact de l'environnement sur la répartition des espèces
 --> interactions ou évitements
 
-ANALYSE :
+**ANALYSE** :
 ==> test du Chi² pour vérifier la dépendance entre les données localisations et présence de l'espèce
 ==> ACM(commu) : nous avons des données utilisant des modalités simples avec j individus et i localisations
 ==> expected : groupes d'oiseaux, oiseaux "ubiquitaires"
@@ -39,7 +43,7 @@ ANALYSE :
 ==> conclure : comportements différents selon la qualité de vie du milieu (caractéristiques ciblées par l'analyse)
 
 
-Ouverture des documents :
+# Ouverture des documents
 
 ```{r}
 habitat = read.table("../data/habitat.tsv", sep = "\t",
@@ -50,23 +54,63 @@ commu = read.table("../data/communautes.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
 ```
 
+# Test du X² : indépendance entre présence de l'espèce et caractéristiques du milieux ?
 
-Test du X² : indépendance entre présence de l'espèce et caractéristiques du milieux ?
+```{r, warning=FALSE}
+#test de la répartition d'une espèce d'oiseau en fonction de l'environnement
+commu_clean = commu[,-1]
+habitat_clean = habitat[,-1]
+esp = colnames(commu_clean[1,])
+hab = colnames(habitat_clean[1,])
 
-```{r}
-res = chisq.test(commu[,2:17]) ; res$
-
-res2 = list()
-for (i in 2:17){
-  print(chisq.test(commu[,i])$p.value)
+write(x = "Test de chi2 sur la répartition d'une espèce d'oiseau en fonction de l'environnement", file = "chi-2_q2_export.txt", append = F)
+n=0
+for (i in 1:length(commu_clean[1,])){
+  n=n+1
+  commuI = paste("\n----------", esp[n], "----------")
+  write(x = commuI, file = "chi-2_q2_export.txt", append = T)
+  m = 0
+  for (j in 1:length(habitat_clean[1,])){
+    m=m+1
+    chi2 = chisq.test(commu_clean[,i], habitat_clean[,j])
+    habitatI = paste(hab[m], ":", chi2$p.value)
+    write(x = habitatI, file = "chi-2_q2_export.txt", append = T)
   }
+}
+
+write(x = "Résultats d'indépendance entre les données", file = "chi-2_q2_export_indep.txt", append = F)
+write(x = "Résultats de dépendance entre les données", file = "chi-2_q2_export_dep.txt", append = F)
+n=0
+for (i in 1:length(commu_clean[1,])){
+  n=n+1
+  commuI = paste("\n----------", esp[n], "----------")
+  write(x = commuI, file = "chi-2_q2_export_indep.txt", append = T)
+  write(x = commuI, file = "chi-2_q2_export_dep.txt", append = T)
+  m = 0
+  for (j in 1:length(habitat_clean[1,])){
+    m=m+1
+    chi2 = chisq.test(commu_clean[,i], habitat_clean[,j])
+    habitatI = paste(hab[m], ":", chi2$p.value)
+    
+    if (chi2$p.value<0.05){
+      write(x = habitatI, file = "chi-2_q2_export_dep.txt", append = T)
+    }
+    else{
+      write(x = habitatI, file = "chi-2_q2_export_indep.txt", append = T)
+    }
+  }
+}
 ```
 
-==> La localisation n'impacte pas la répartition des espèces.
+**pathfile** : [chi-2_q2_export_dep.txt]{style="color:green"}
 
-ACP normée sur environnement (habitat)
+**pathfile** : [chi-2_q2_export_indep.txt]{style="color:green"}
 
-```{r}
+**pathfile** : [chi-2_q2_export.txt]{style="color:green"}
+
+# ACP normée sur environnement (habitat)
+
+```{r, warning=FALSE}
 plot(habitat)
 
 res = chisq.test(habitat[,4:19]) ; res
@@ -81,21 +125,20 @@ acp_habitat$c1
 # 1 variable expliquant peu le modèle : hydro (faible pourcentage d'explication des axes, <10%)
 ```
 
-AFC sur répartition des espèces (commu)
+# AFC sur répartition des espèces (commu)
 
-```{r}
+```{r, warning=FALSE}
 plot(commu)
 
 res = chisq.test(commu[,2:17]) ; res
 # Indépendance des données
 
-afc1 = dudi.coa(commu, nf=2, scannf = F)
-afc1
+afc1 = dudi.coa(commu, nf=2, scannf = F) ; afc1
 barplot(afc1$eig)
 scatter(afc1)
 ```
 
-Couplage de tableaux entre AFC (tableau espèce) et une ACP normée (tableau habitat)
+# Couplage de tableaux entre AFC (tableau espèce) et une ACP normée (tableau habitat)
 
 ```{r}
 # Log des données
@@ -123,10 +166,21 @@ s.match(cca$li, cca$ls, clabel = 0.5)
 plot(cca)
 ```
 
-ACC sur les données HABITAT x COMMU
+# ACC sur les données HABITAT x COMMU
 
 ```{r}
-acc1 = cca(afc1, acp_habitat)
+acc1 = cca(commu[,-1], caract_habitat)
+plot(acc1)
+#répartition lisière de foret et foret à l'opposé, coeur de la foret corrélé à foret
+
+acc2 = cca(commu[,-1] ~ bati + agri + arbu + hydro + prai + foret, caract_habitat)
+plot(acc2)
+#explication de la répartition avec les conditions occupations du sol et urbanisation
+#agri, bati, hydro, foret à conserver
+
+acc3 = cca(commu[,-1] ~ bati + agri + hydro + foret, caract_habitat)
+plot(acc3)
+# urbanisation opposé à réseau hydrographique, surface agricole opposé à foret
 ```
 
 
