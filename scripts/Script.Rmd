@@ -1,5 +1,5 @@
 ---
-title: "Projet ADM Q1"
+title: "Projet ADM total"
 author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
 date: "`r Sys.Date()`"
 output: 
@@ -11,13 +11,12 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r include=FALSE, eval=FALSE}
+```{r include=FALSE, eval=T}
 knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="Figs/", echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE)
 ```
 
 
-======================= QUESTION 1 =======================
-
+# ==== QUESTION 1 ====
 
 **/!\\ WARNING** : chi² --> test d'indépendance : H0 "Les données sont indépendantes". La p-value correspond au risque de se tromper en rejettant H0.
 Donc si p>0.05 --> on ne rejette pas H0, les données sont indépendantes, pas de relation entre elles ni d'implication.
@@ -59,7 +58,7 @@ commu = read.table("../data/communautes.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
 ```
 
-# Test du X² : indépendance entre présence de l'espèce et caractéristiques du milieux ?
+# Test du X² : indépendance entre présence de l'espèce et caractéristiques du milieu ?
 
 ```{r, warning=FALSE}
 #test de la répartition d'une espèce d'oiseau en fonction de l'environnement
@@ -266,7 +265,7 @@ afc_couplage = dudi.coa(couplage, scannf = F, nf = 2)
 scatter(afc_couplage)
 ```
 
-======================= QUESTION 2 =======================
+# ==== QUESTION 2 ====
 
 --> espèces : caractéristiques
 
@@ -586,7 +585,7 @@ Cependant on voit que on peut séparer les tailles des espèces par l’environn
 
 
 
-======================= QUESTION 3 =======================
+# ==== QUESTION 3 ==== 
 
 
 
@@ -604,7 +603,7 @@ Cependant on voit que on peut séparer les tailles des espèces par l’environn
 
 
 
-======================= QUESTION 4=======================
+# ==== QUESTION 4 ====
 
 --> habitat : urbanisation
 --> espèces : taille
@@ -681,7 +680,7 @@ on a les positions des oiseaux par espèces dans les n° IDPG
 faire les Chi² pour voir si la taille est indépendente chez chaque espèces : 
 
 
-```{r boucle chatty}
+```{r boucle chatty 2}
 chi_results <- list()
 for (nom in vectNom) {
   subset_name <- paste0(nom, "habitat")
@@ -787,7 +786,7 @@ sample estimates:
 
 La taille de l'espèce et le taux d'urbanisation est négativement corrélé
 
-======================= QUESTION 5 ======================= 
+# ==== QUESTION 5 ====
 
 --> habitat : urbanisation
 --> espèces : protégée ou non ?
@@ -940,28 +939,4 @@ l'ACM moins mais explique quand même les 2 axes
 Les 2 ont une bonne corrélation car les projection de tabX et tabY (les projections des 2 axes) sont très proches.
 
 on voit que les variables espèces sont corrélée avec les variables
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

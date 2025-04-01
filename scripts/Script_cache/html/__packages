@@ -11,3 +11,8 @@ dplyr
 stringr
 forcats
 lubridate
+permute
+lattice
+vegan
+zoo
+lmtest

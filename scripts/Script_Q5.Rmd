@@ -184,10 +184,10 @@ l'ACM moins mais explique quand même les 2 axes
 
 Les 2 ont une bonne corrélation car les projection de tabX et tabY (les projections des 2 axes) sont très proches.
 
-on voit que les variables espèces sont corrélée avec les variables environnementales dont bati
+on voit que les variables espèces sont corrélée avec les variables
 
-mais les 2 ont des structures différentes indiqué par RV = 0.3
-  ==> si proche de 1 = même structure
+
+
 
 
 
