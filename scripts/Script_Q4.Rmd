@@ -2,11 +2,7 @@
 title: "Projet ADM Q4"
 author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
 date: "`r Sys.Date()`"
-output: 
-  htlm_document:
-    code_folding: hide
-    toc: TRUE
-    cache: TRUE
+
 editor_options: 
   chunk_output_type: console
 ---
@@ -30,7 +26,6 @@ library(ade4)
 --> espèces : taille
 
 ==> impact de l'urbanisation sur la taille des oiseaux (diminution de la taille pour se cacher de l'Homme ?)
-
 
 
 ```{r}
@@ -148,21 +143,31 @@ meanList = append(meanList, mean(Tulhabitat$bati))
 
 on a les moyennes : chi² time :)
 
-```{r vérification validité cor.test}
+### vérification validité cor.test
+
+#### vérification normalité
+
+```{r}
 #normalité : 
 shapiro.test(meanList)
 shapiro.test(especes$Taille)
 ```
 données normales
 
-```{r vérification linéralité}
+
+#### vérification linéralité
+
+```{r}
 plot(meanList,especes$Taille,
-     pch =3, col = "red3") 
+     pch =3, col = "red3",
+     ylab = "taille des especes",xlab = "moyenne urbanisation par espèces") 
 ```
 
 Bah pas fou mais globalement avec clémence, on semble voir une tendence à la décroissance
 
-```{r test homoscédasticité}
+#### test homoscédasticité
+
+```{r}
 library(lmtest)
 bptest(meanList~especes$Taille)
 ```

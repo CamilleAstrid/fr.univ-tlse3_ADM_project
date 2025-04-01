@@ -2,11 +2,7 @@
 title: "Projet ADM Q5"
 author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
 date: "`r Sys.Date()`"
-output: 
-  htlm_document:
-    code_folding: hide
-    toc: TRUE
-    cache: TRUE
+
 editor_options: 
   chunk_output_type: console
 ---
@@ -24,32 +20,176 @@ library(ade4)
 #library(MASS)
 ```
 
-======================= QUESTION 4 =======================
-
---\> habitat : urbanisation
-
---\> espèces : taille
-
-Ouverture des données
-
 ```{r}
 habitat = read.table("../data/habitat.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
+habitat = habitat[,-2:-3] # on supprime le qualitatif (mauvais pour nous)
+
 especes = read.table("../data/especes.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
+
+commu = read.table("../data/communautes.tsv", sep = "\t",
+                   stringsAsFactors = T, header = T, na.strings = T)
 ```
 
-==\> impact de l'urbanisation sur la taille des oiseaux (diminution de la taille pour se cacher de l'Homme ?)
+======================= QUESTION 5 ======================= 
 
-ANALYSE :
+--> habitat : urbanisation
+--> espèces : protégée ou non ?
 
--   ==\> chi² entre espece\$taille et habitat\$bati
+==> est-ce que les oiseaux protégés sont davantages présents dans les milieux urbains : protection intense par l'Homme, abondance de nourriture, absence de prédateurs, habitats cachés et sécuritaires...
 
-Problème, on a des problèmes de dimentions, nécécité de faire des subsets : 
+## ANALYSE :
+==> chi² entre habitat `bati et especes` IUCN
+
+en premier on va faire une ACM entre les espèces sauf la taille et 
+
+```{r}
+vectCol = c("IdPE","agri","arbu","prai","foret","bati")
+habitaEnv.subset = subset(habitat,select = vectCol)
+
+```
+
+
+## on vas chercher si ya une corrélation entre espèces protégé et l'espèce de volatile : 
+
+```{r}
+# Récupération des noms des colonnes correspondant aux espèces (colonnes 2 à 17)
+vectNom <- c("Myo", "Gem", "Meh", "Col", "Lon", "Cir", "Euh", "Orc", "Euj", "Cof", "Dep", "Mas", "Maf", "Saa", "Elm", "Tul")
+
+# Création d'une liste vide pour stocker les sous-ensembles
+listSubsets = list()
+# Parcours de toutes les espèces
+for (i in 1:length(vectNom)) {
+  especesActu = vectNom[i]
+  # Extraction des numéros de lieu (IdPE) où l'espèce a une présence (valeur 1)
+  foosubset = commu$IdPE[commu[[especesActu]] == 1]
+  listSubsets[[especesActu]] = foosubset
+}
+
+# /!\ va faire vla des lignes de variables :
+```
+
+```{r eval=T, include=FALSE}
+
+
+Myohabitat = subset(habitat, IdPE %in% listSubsets$Myo); Myohabitat[,18] = especes$Taille[1]
+Gemhabitat = subset(habitat, IdPE %in% listSubsets$Gem); Gemhabitat[,18] = especes$Taille[2]
+Mehhabitat = subset(habitat, IdPE %in% listSubsets$Meh); Mehhabitat[,18] = especes$Taille[3]
+Colhabitat = subset(habitat, IdPE %in% listSubsets$Col); Colhabitat[,18] = especes$Taille[4]
+Lonhabitat = subset(habitat, IdPE %in% listSubsets$Lon); Lonhabitat[,18] = especes$Taille[5]
+Cirhabitat = subset(habitat, IdPE %in% listSubsets$Cir); Cirhabitat[,18] = especes$Taille[6]
+Euhhabitat = subset(habitat, IdPE %in% listSubsets$Euh); Euhhabitat[,18] = especes$Taille[7]
+Orchabitat = subset(habitat, IdPE %in% listSubsets$Orc); Orchabitat[,18] = especes$Taille[8]
+Eujhabitat = subset(habitat, IdPE %in% listSubsets$Euj); Eujhabitat[,18] = especes$Taille[9]
+Cofhabitat = subset(habitat, IdPE %in% listSubsets$Cof); Cofhabitat[,18] = especes$Taille[10]
+Dephabitat = subset(habitat, IdPE %in% listSubsets$Dep); Dephabitat[,18] = especes$Taille[11]
+Mashabitat = subset(habitat, IdPE %in% listSubsets$Mas); Mashabitat[,18] = especes$Taille[12]
+Mafhabitat = subset(habitat, IdPE %in% listSubsets$Maf); Mafhabitat[,18] = especes$Taille[13]
+Saahabitat = subset(habitat, IdPE %in% listSubsets$Saa); Saahabitat[,18] = especes$Taille[14]
+Elmhabitat = subset(habitat, IdPE %in% listSubsets$Elm); Elmhabitat[,18] = especes$Taille[15]
+Tulhabitat = subset(habitat, IdPE %in% listSubsets$Tul); Tulhabitat[,18] = especes$Taille[16]
+```
+
+
+on va faire comme a la Q4 mais avec plus de variable
+
+```{r truc nul bouclé par chatty}
+# Liste des noms d'habitat
+habitat_names <- c("Myohabitat", "Gemhabitat", "Mehhabitat", "Colhabitat", "Lonhabitat", 
+                   "Cirhabitat", "Euhhabitat", "Orchabitat", "Eujhabitat", "Cofhabitat", 
+                   "Dephabitat", "Mashabitat", "Mafhabitat", "Saahabitat", "Elmhabitat", "Tulhabitat")
+
+# liste des diminutif des noms
+vectNom <- c("Myo", "Gem", "Meh", "Col", "Lon", "Cir", "Euh", "Orc", "Euj",
+             "Cof", "Dep", "Mas", "Maf", "Saa", "Elm", "Tul")
+
+# Liste des colonnes d'intérêt
+vectCol <- c("agri", "arbu", "prai", "foret", "bati")
+
+# Initialisation d'une liste pour stocker les données
+meanList <- data.frame(matrix(ncol = length(vectCol) + 1, nrow = length(habitat_names)))
+
+# Nommer les colonnes du dataframe
+colnames(meanList) <- c("habitat", vectCol)
+
+# Remplir le dataframe
+for (i in seq_along(habitat_names)) {
+  habitat <- habitat_names[i]
+  habitat_data <- get(habitat)  # Récupération du dataframe
+  
+  # Calcul des moyennes pour chaque colonne d'intérêt
+  mean_values <- sapply(vectCol, function(col) mean(habitat_data[[col]], na.rm = TRUE))
+  
+  # Stockage des résultats
+  meanList[i, ] <- c(habitat, mean_values)
+}
+
+# Convertir la colonne 'habitat' en facteur ou caractère
+meanList$habitat <- as.character(vectNom)
+
+# Affichage du résultat
+meanList = data.frame(meanList)
+
+# Conversion des colonnes en numérique car bozo est char
+meanList[,-1] <- lapply(meanList[,-1], as.numeric)
+```
+
+faire les dataframes 
+
+ACM entre les moyennes et les espèces : 
+
+```{r}
+ACM_Espèces = dudi.acm(especes[,-6],
+                       scannf = FALSE, nf = 2)
+
+boxplot(ACM_Espèces)
+```
+
+### AFD pour expliquer espèces par leur moyenne intra-espèces : 
+
+#### 1 faire l'ACP
+
+```{r}
+acp.meanhabi = dudi.pca(meanList[,-1],
+         center = T, scale = T,
+         scannf = FALSE, nf = 2)
+```
+
+#### 2 faire une AFC
+
+```{r}
+acm.espèces = dudi.acm(as.data.frame(especes[-6]),
+                       scannf = FALSE, nf = 2)
+boxplot(acm.espèces)
+```
+
+
+```{r}
+coinertie = coinertia(acm.espèces,acp.meanhabi,
+                      scannf = FALSE, nf = 2); summary(coinertie)
+
+s.corcircle(coinertie$li)
+
+plot(coinertie)
+```
+
+on arrive a séparer les espèces en fonctions decès variables environnementales
+
+X = acm
+Y = acp
+
+==> conclure :
+
+l'ACP explique super bien la co-inertie
+l'ACM moins mais explique quand même les 2 axes
+
+Les 2 ont une bonne corrélation car les projection de tabX et tabY (les projections des 2 axes) sont très proches.
+
+on voit que les variables espèces sont corrélée avec les variables environnementales dont bati
 
 
 
 
--   ==\> modèle linéaire
 
-==\> conclure :
+
