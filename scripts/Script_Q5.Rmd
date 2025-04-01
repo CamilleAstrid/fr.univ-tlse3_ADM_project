@@ -188,7 +188,8 @@ Les 2 ont une bonne corrélation car les projection de tabX et tabY (les project
 
 on voit que les variables espèces sont corrélée avec les variables environnementales dont bati
 
-
+mais les 2 ont des structures différentes indiqué par RV = 0.3
+  ==> si proche de 1 = même structure
 
 
 
