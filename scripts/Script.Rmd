@@ -1,9 +1,9 @@
 ---
-title: "Projet ADM"
+title: "Projet ADM Q1"
 author: "RODRIGUES Camille-Astrid AMOUROUX Jan"
 date: "`r Sys.Date()`"
 output: 
-  htlm_document:
+  html_document:
     code_folding: hide
     toc: TRUE
     cache: TRUE
@@ -11,20 +11,44 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r include=FALSE}
+```{r include=FALSE, eval=FALSE}
 knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="Figs/", echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE)
 ```
 
-```{r, include= F}
+
+======================= QUESTION 1 =======================
+
+
+**/!\\ WARNING** : chi² --> test d'indépendance : H0 "Les données sont indépendantes". La p-value correspond au risque de se tromper en rejettant H0.
+Donc si p>0.05 --> on ne rejette pas H0, les données sont indépendantes, pas de relation entre elles ni d'implication.
+Donc si p<=0.05 --> on rejette H0, les données sont dépendantes, il existe une relation entre elles.
+
+```{r, warning=FALSE}
 library(tidyverse)
 library(ade4)
-
-#library(rpart)
-
-#library(MASS)
+library(vegan)
 ```
 
-Ouverture données :
+--> communautés : quelles sont les espèces qui vivent ensemble ? même localisation ? exemple : Est-ce que pinson toujours avec pie ?
+--> habitat : différentes répartitions selon la localisation ? exemple : Quand il fait chaud, les pinsons ne blairent plus les pies ?
+
+==> impact de l'environnement sur la répartition des espèces
+--> interactions ou évitements
+
+**ANALYSE** :
+==> test du Chi² pour vérifier la dépendance entre les données localisations et présence de l'espèce
+==> ACM(commu) : nous avons des données utilisant des modalités simples avec j individus et i localisations
+==> expected : groupes d'oiseaux, oiseaux "ubiquitaires"
+==> test corrélation des variables entre-elles pour diminuer le nombre de variables à étudier
+==> ACP(habitat) : lissage des données qualitatives au besoin, réduction du nombre de variables
+==> co-inertie = ACM+ACP : couplage de tableaux entre habitat et répartition espèces
+==> expected : présence de cluster en fonction de certaines caractéristiques du milieu
+
+==> conclure : comportements différents selon la qualité de vie du milieu (caractéristiques ciblées par l'analyse)
+
+suite analyse pour q3
+
+# Ouverture des documents
 
 ```{r}
 habitat = read.table("../data/habitat.tsv", sep = "\t",
@@ -35,84 +59,909 @@ commu = read.table("../data/communautes.tsv", sep = "\t",
                      stringsAsFactors = T, header = T, na.strings = T)
 ```
 
-```{r eval=FALSE, include=FALSE}
-plot(habitat)
-plot(commu)
-plot(especes)
-```
+# Test du X² : indépendance entre présence de l'espèce et caractéristiques du milieux ?
 
+```{r, warning=FALSE}
+#test de la répartition d'une espèce d'oiseau en fonction de l'environnement
+commu_clean = commu[,-1]
+habitat_clean = habitat[,-1]
+esp = colnames(commu_clean[1,])
+hab = colnames(habitat_clean[1,])
 
-## QUESTION 1
+write(x = "Test de chi2 sur la répartition d'une espèce d'oiseau en fonction de l'environnement", file = "chi-2_q1_export.txt", append = F)
+n=0
+for (i in 1:length(commu_clean[1,])){
+  n=n+1
+  commuI = paste("\n----------", esp[n], "----------")
+  write(x = commuI, file = "chi-2_q1_export.txt", append = T)
+  m = 0
+  for (j in 1:length(habitat_clean[1,])){
+    m=m+1
+    chi2 = chisq.test(commu_clean[,i], habitat_clean[,j])
+    habitatI = paste(hab[m], ":", chi2$p.value)
+    write(x = habitatI, file = "chi-2_q1_export.txt", append = T)
+  }
+}
 
-communautés :
-
---\> quelles sont les espèces qui vivent ensemble ? même localisation
-
-Ex: Est-ce que pinson toujours avec pie ?
-
-Quand il fait chaud, les pinsons ne blairent plus les pies ? --\> habitat : différentes répartitions selon la localisation ?
-
-==\> impact de l'environnement sur la répartition des espèces --\> interactions ou évitements
-
-Faire une ACM **(Analyse des Correspondances Multiples)**
-
-![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXdUDZtYExwQpMmshi_qPu-2hekY_j01YyBLR0rHlv31bxwCZk6U05KwLUYLU7l33lk9dSEr5rLoph9id4foSGljJfQWu4MwHwyPpXFVnmAGKo7eSWA4_Q4mgZady4TAXfq8TbVitQ?key=A9rKyC2UVfLMb7s95vMu3P7t)
-
-ici :
-
--   variable = espèce
-
--   individu = localisation
-
-```{r}
-summary(commu)
-commu.asfact = data_frame(matrix(nrow = length(commu[,1]), ncol = length(commu[1,])))
-for (i in 1:length(commu[1,])){
-  commu.asfact[,i] = as.factor(as.character(commu[,i]))
+write(x = "Résultats d'indépendance entre les données", file = "chi-2_q1_export_indep.txt", append = F)
+write(x = "Résultats de dépendance entre les données", file = "chi-2_q1_export_dep.txt", append = F)
+n=0
+for (i in 1:length(commu_clean[1,])){
+  n=n+1
+  commuI = paste("\n----------", esp[n], "----------")
+  write(x = commuI, file = "chi-2_q1_export_indep.txt", append = T)
+  write(x = commuI, file = "chi-2_q1_export_dep.txt", append = T)
+  m = 0
+  for (j in 1:length(habitat_clean[1,])){
+    m=m+1
+    chi2 = chisq.test(commu_clean[,i], habitat_clean[,j])
+    habitatI = paste(hab[m], ":", chi2$p.value)
+    
+    if (chi2$p.value<0.05){
+      write(x = habitatI, file = "chi-2_q1_export_dep.txt", append = T)
+    }
+    else{
+      write(x = habitatI, file = "chi-2_q1_export_indep.txt", append = T)
+    }
+  }
 }
 ```
 
-Test Chi² ==> H0 : indépendance des données
+**pathfile** : [chi-2_q2_export_dep.txt]{style="color:green"}
 
-```{r}
-  suppressWarnings(chisq.test(commu))
-```
+**pathfile** : [chi-2_q2_export_indep.txt]{style="color:green"}
 
-Il y a dépendance ==> on peut commencer a chercher du lien
+**pathfile** : [chi-2_q2_export.txt]{style="color:green"}
 
-```{r}
-acm1 = dudi.acm(commu.asfact,
-                nf = 2, scannf = F)
-```
+# ACP normée sur environnement (habitat)
 
-```{r}
-summary(acm1)
-acm1$cr
-```
+```{r, warning=FALSE}
+plot(habitat)
 
-```{r}
-s.corcircle(acm1$li,
+res = chisq.test(habitat[,4:19]) ; res
+# Dépendance des données
+
+acp_habitat = dudi.pca(habitat[,4:19], scale=T, nf = 2, scannf = F)
+plot(acp_habitat$li,
+     pch = 3)
+s.corcircle(acp_habitat$co,
             grid = F)
-scatter(acm1)
+acp_habitat$c1
+# 1 variable expliquant peu le modèle : hydro (faible pourcentage d'explication des axes, <10%)
+```
+
+# AFC sur répartition des espèces (commu)
+
+```{r, warning=FALSE}
+plot(commu)
+
+res = chisq.test(commu[,2:17]) ; res
+# Indépendance des données
+
+afc1 = dudi.coa(commu, nf=2, scannf = F) ; afc1
+barplot(afc1$eig)
+scatter(afc1)
+```
+
+# Couplage de tableaux entre AFC (tableau espèce) et une ACP normée (tableau habitat)
+
+```{r, warning=FALSE}
+# Log des données
+caract_habitat = habitat[,-(1:3)]
+log_habitat = log(caract_habitat +1)
+
+cca = pcaiv(afc1, log_habitat, scannf = F, nf = 2)
+
+#projection axe d'inertie
+s.corcircle(cca$as)
+
+# Position des relevés par combinaisons de variables environnementales : représentation des sites
+s.label(cca$l1, clabel = 0, cpoint = 1.5)
+
+# Position des espèces à la moyenne des sites qui les contiennent : représentation des espèces
+s.label(cca$co, add.plot = T)
+
+# Poids canoniques donnant les combinaisons de variance unité
+s.arrow(cca$fa)
+
+# Prédiction des positions par régression sur les variables de milieu
+s.match(cca$li, cca$ls, clabel = 0.5)
+
+# Ensemble des résultats de l'analyse
+plot(cca)
+```
+
+# ACC sur les données HABITAT x COMMU
+
+```{r, warning=FALSE}
+acc1 = cca(commu[,-1], caract_habitat)
+plot(acc1)
+#répartition lisière de foret et foret à l'opposé, coeur de la foret corrélé à foret
+
+acc2 = cca(commu[,-1] ~ bati + agri + arbu + hydro + prai + foret, caract_habitat)
+plot(acc2)
+#explication de la répartition avec les conditions occupations du sol et urbanisation
+#agri, bati, hydro, foret à conserver
+
+acc3 = cca(commu[,-1] ~ bati + agri + hydro + foret, caract_habitat)
+plot(acc3)
+# urbanisation opposé à réseau hydrographique, surface agricole opposé à foret
+```
+
+# Localisation des espèces en fonction des autres
+
+```{r, warning=FALSE}
+#test de la répartition d'une espèce d'oiseau en fonction des autres espèces
+commu_clean = commu[,-1]
+esp = colnames(commu_clean[1,])
+taille = length(commu_clean[1,])-1
+
+write(x = "Test de chi2 sur la répartition d'une espèce d'oiseau en fonction des autres", file = "chi-2_q1_export2.txt", append = F)
+for (i in 1:taille){
+  commuI = paste("\n----------", esp[i], "----------")
+  write(x = commuI, file = "chi-2_q1_export2.txt", append = T)
+  deb = i+1
+  for (j in deb:taille){
+    chi2 = chisq.test(commu_clean[,i], commu_clean[,j])
+    espI = paste(esp[j], ":", chi2$p.value)
+    write(x = espI, file = "chi-2_q1_export2.txt", append = T)
+  }
+}
+
+write(x = "Résultats d'indépendance entre les données", file = "chi-2_q1_export2_indep.txt", append = F)
+write(x = "Résultats de dépendance entre les données", file = "chi-2_q1_export2_dep.txt", append = F)
+for (i in 1:taille){
+  commuI = paste("\n----------", esp[i], "----------")
+  write(x = commuI, file = "chi-2_q1_export2_indep.txt", append = T)
+  write(x = commuI, file = "chi-2_q1_export2_dep.txt", append = T)
+  deb = i+1
+  for (j in deb:taille){
+    chi2 = chisq.test(commu_clean[,i], commu_clean[,j])
+    espI = paste(esp[j], ":", chi2$p.value)
+    
+    if (chi2$p.value<0.05){
+      write(x = espI, file = "chi-2_q1_export2_dep.txt", append = T)
+    }
+    else{
+      write(x = espI, file = "chi-2_q1_export2_indep.txt", append = T)
+    }
+  }
+}
+```
+
+discrim needs class
+
+# Co-inertie
+
+```{r, warning=FALSE}
+couplage = cbind(commu[,-1], habitat[,-1])
+habitat_numerique = habitat[,-(1:3)]
+
+#AFC sur tableau de comptage
+afc_commu = dudi.coa(commu[,-1], nf=2, scannf = F)
+scatter(afc_commu)
+
+#ACP normée sur milieu
+acp_habitat = dudi.pca(habitat_numerique, scale=T, nf = 2, scannf = F)
+```
+
+```{r, warning=FALSE, eval=TRUE, include=FALSE}
+#co-inertie (ACF, ACP)
+afc_commu$lw
+acp_habitat$lw
+#--> poids des lignes non uniformes
+```
+
+```{r, warning=FALSE}
+#set même poids partout
+acp_habitat$lw <- rep(1, length(acp_habitat$lw))
+afc_commu$lw <- rep(1, length(afc_commu$lw))
+
+coinertie = coinertia(acp_habitat, afc_commu, scannf = F, nf = 2)
+plot(coinertie)
+scatter(coinertie)
+
+#AFC sur couplage
+afc_couplage = dudi.coa(couplage, scannf = F, nf = 2)
+scatter(afc_couplage)
+```
+
+======================= QUESTION 2 =======================
+
+--> espèces : caractéristiques
+
+--> habitat : caractéristiques
+
+    ==> impact de l'habitat sur les caractéristiques de l'espèce
+
+--> petit ou grand selon la température, etc …
+
+Ouverture des données : 
+
+```{r}
+habitat = read.table("../data/habitat.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+especes = read.table("../data/especes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+commu = read.table("../data/communautes.tsv", sep = "\t",
+                   stringsAsFactors = T, header = T, na.strings = T)
+
+habitat = habitat[,-2:-3]
+name = colnames(habitat)
+colnames(habitat) = name
+```
+
+ANALYSE :
+
+####  ==> extraire informations précédentes = subset par colonnes dont on extrait les numéros des localisations
+
+Création des subsets de numéro de lieu ayant des Gem (Colombe.a.croissants)
+```{r}
+# Récupération des noms des colonnes correspondant aux espèces (colonnes 2 à 17)
+vectNom = names(commu[2:17])
+
+# Création d'une liste vide pour stocker les sous-ensembles
+listSubsets = list()
+# Parcours de toutes les espèces
+for (i in 1:length(vectNom)) {
+  especesActu = vectNom[i]
+  # Extraction des numéros de lieu (IdPE) où l'espèce a une présence (valeur 1)
+  foosubset = commu$IdPE[commu[[especesActu]] == 1]
+  listSubsets[[especesActu]] = foosubset
+}
+
+listSubsets$Gem
+```
+
+On a toutes les localisation de chaque espèce
+
+Exemple d'appel pour les localisation de Gem : 
+listSubsets$gem
+
+####  ==> moyenne des données sur l'habitat pour chaque colonne du subset (espèces)
+
+Pour se donner une idée de vers ou on vas, nous allons regarder chaque moyenne de variables 
+
+```{r}
+par(mfrow = c(1,1))
+ExGem = colMeans(subset(habitat, habitat$IdPE %in% listSubsets$Gem))
+plot(ExGem[-1])
+```
+
+Nous voyons que les unitées sont biaisées, il est donc nécécaire de normaliser
+
+Généraliser par une boucle tapply : 
+
+```{r}
+ExMat = t(sapply(names(listSubsets), function(name) {
+  colMeans(subset(habitat, habitat$IdPE %in% listSubsets[[name]]))
+}))
+ExMat = ExMat[,-1]
+```
+
+/!\\ sapply == tapply mais pour sortir une matrice et pas une liste /!\\
+
+
+## ChiTest² 
+
+```{r}
+chisq.test(habitat[,2:17])
+
+for (i in 2:17){
+  print(chisq.test(habitat[,i]))
+}
+```
+
+Les colonnes satisfaisant le Chi-test : 
+
+* logitude
+* latitude
+* agri
+* arbu
+* hydro
+* foret
+* ecot
+* temp
+* bati
+
+```{r}
+boxplot(ExMat,
+     pch = 3, col = "darkred",
+     log = "y")
+```
+
+Boxplot avec une normalisation au log10()
+
+```{r}
+ExMat.meannorm = scale(ExMat, center = T, scale = T)
+```
+
+```{r}
+boxplot.matrix(ExMat.meannorm, col = "darkred")
+```
+
+normalisation centré réduite à la moyenne
+
+Des boxplots plus interresant (par classe): 
+
+```{r}
+par(mfrow = c(1,2))
+
+#   1. Point d'écoute : 
+
+plot(ExMat[,1:2],
+     pch = 3, col = "brown")
+
+acp.Ecoute = dudi.pca(ExMat[,1:2], center = TRUE, scale = TRUE,
+                 ,scannf = FALSE, nf = 1)
+plot(acp.Ecoute$li,
+     pch = 3, col = "brown")
+
+#corrélation +
+
+#  2. Occupation du sol : 
+  
+boxplot(ExMat[,3:7],
+     pch = 3, col = "darkgreen")
+
+acp.Ocuu = dudi.pca(ExMat[,3:7], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 2)
+plot(acp.Ocuu$li,
+     pch = 3, col = "darkgreen")
+
+# pas de corrélation
+
+#  3. Fragmentation : 
+
+boxplot(ExMat[,8:11],
+     pch = 3, col = "salmon")
+
+
+acp.Frag = dudi.pca(ExMat[,8:11], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 2)
+plot(acp.Frag$li,
+     pch = 3, col = "salmon")
+
+# pas de corrélation
+
+#  4. Topographie
+
+plot(ExMat[,12:13],
+     pch = 3, col = "black")
+
+acp.Topo = dudi.pca(ExMat[,12:13], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 1)
+plot(acp.Topo$li,
+     pch = 3, col = "black")
+
+# corrélation +
+
+#  5. condition topographique
+
+plot(ExMat[,14:15],
+     pch = 3, col = "darkblue")
+
+acp.CondTopo = dudi.pca(ExMat[,14:15], center = TRUE, scale = TRUE,
+                 scannf = FALSE, nf = 1)
+plot(acp.CondTopo$li,
+     pch = 3, col = "darkblue")
+
+# corrélation -
+
+#  6. Urbanisation
+
+par(mfrow = c(1,1))
+boxplot(ExMat[,16],
+     pch = 3, col = "darkgray")
+
+# c'est une ligne
+
+# 7. Total
+par(mfrow = c(1,2))
+boxplot(ExMat,
+     pch = 3, col = "darkred",
+     las = 2, log = "y")
+acp.Total = dudi.pca(ExMat[,1:15], center = TRUE, scale = TRUE,
+                     scannf = FALSE, nf = 2)
+
+# bordel imonde
+```
+
+* Point d'écoute semble avoir une corrélation positive 
+
+* Occupation du sol ne semble pas être corrélé
+
+* Fragmentation ne semble pas être corrélé
+
+* Topographie semble être corrélé positivement
+
+* condition topographique semble être corrélé négativement
+
+####  ==> expliquer chacune des variables de l'espèce en fonction des variables de l'environnement
+
+    --> Ex :  taille petite quand température haute, alimentation quand hydrométrie élevée
+
+Faire des AFD par catégorie pour voir si impact sur l'alimentation 
+
+```{r}
+# discrimin = AFD
+# les arg : (acp, var qualitative)
+afd.Ecoute.Taille = discrimin(acp.Ecoute,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Ecoute.Taille)
+
+
+#########
+afd.Ocuu.Taille = discrimin(acp.Ocuu,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Ocuu.Taille)
+
+
+
+########
+afd.Frag.Taille = discrimin(acp.Frag,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Frag.Taille)
+
+
+########
+afd.Mat.Taille = discrimin(acp.Topo,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.Ecoute.Taille)
+
+
+########
+afd.CondTopo.Taille = discrimin(acp.CondTopo,as.factor(especes$Taille)
+                 , scannf = FALSE, nf = 2)
+
+plot(afd.CondTopo.Taille)
+
+
 ```
 
 
-## QUESTION 2
+####  ==> conclure :
 
-> espèces : caractéristiques
+Lieu d'écoute vs Taille des espèces  : 
 
-> habitat : caractéristiques
+> pas de création concluante de classe
 
-==\> impact de l'habitat sur les caractéristiques de l'espèce --\> petit ou grand selon la température, etc …
+12 et 23 peu expliquer par les 2 axes
+
+20 et 24 ont les coordonnées similaires
+9 et 30 // (// == pareil qu'au dessus)
+11 et 14 //
+11, 14 et 20,24 sont opposé
+
+___
+
+Ocuu vs Taille des espèces :
+
+> toujours aucune classe concluante à part pour grouper le groupe 12 : Moqueur.grivotte
+
+15 peu expliquer par le modèle
+arbu et hydro sont peu explicatif de notre modèle
+
+l'espèce 23 a tendance a se retrouver en foret avec des grandes surfaces agricole
+
+___
+
+Frag vs Taille des espèces : 
+
+> rien de concluant
+
+Les 4 variables sont explicative mais ont des vélocités colinéaires
+
+l'espèce 30 est très ecot mais très peu heter et lisi
+
+___
+
+Topo vs Taille des espèces : 
+
+> pas de création concluante de classe
+
+Les 2 variables sont explicative mais ont des vélocités colinéaires
+
+sépare les espèces correctment
+___
+
+CondTopo vs Taille des espèces : 
+
+> same
+
+Les 2 variables sont explicative mais ont des vélocités colinéaires
+
+___
+
+Global : on ne peut pas classer la taille des espèces en fonction de l’environnement
+
+Cependant on voit que on peut séparer les tailles des espèces par l’environnement
+
+
+
+
+
+
+======================= QUESTION 3 =======================
+
+
+
+--> habitat : urbanisation
+--> communautés : répartition des espèces
+
+==> impact de l'urbanisation sur la répartition attendues naturelles des espèces
+--> moins d'espèces 1 ou plus d'espèces 2 en zones urbaines que rurales...
+
+**ANALYSE** :
+==> chi² entre commu et habitat$bati
+==> ACP(commu[,2:length(commu[1,])]~habitat$bati)
+
+==> conclure : certaines espèces fuient les milieux urbains quand d'autres si refugent
+
+
+
+======================= QUESTION 4=======================
+
+--> habitat : urbanisation
+--> espèces : taille
+
+==> impact de l'urbanisation sur la taille des oiseaux (diminution de la taille pour se cacher de l'Homme ?)
 
 
 ```{r}
-lmtest = lm(acm1$li$Axis1~habitat$bati)
+habitat = read.table("../data/habitat.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+habitat = habitat[,-2:-3] # on supprime le qualitatif
 
-summary(lmtest)
+especes = read.table("../data/especes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
 
-par(mfrow = c(2,2))
-plot(lmtest)
+commu = read.table("../data/communautes.tsv", sep = "\t",
+                   stringsAsFactors = T, header = T, na.strings = T)
+```
+
+## on vas chercher si ya une corrélation entre la taille et l'espèce de volatile : 
+
+### création des subsets par espèces
+```{r}
+# Récupération des noms des colonnes correspondant aux espèces (colonnes 2 à 17)
+vectNom <- c("Myo", "Gem", "Meh", "Col", "Lon", "Cir", "Euh", "Orc", "Euj", "Cof", "Dep", "Mas", "Maf", "Saa", "Elm", "Tul")
+
+# Création d'une liste vide pour stocker les sous-ensembles
+listSubsets = list()
+# Parcours de toutes les espèces
+for (i in 1:length(vectNom)) {
+  especesActu = vectNom[i]
+  # Extraction des numéros de lieu (IdPE) où l'espèce a une présence (valeur 1)
+  foosubset = commu$IdPE[commu[[especesActu]] == 1]
+  listSubsets[[especesActu]] = foosubset
+}
+
+# /!\ va faire vla des lignes de variables :
+```
+
+```{r boucle chatty}
+for (i in seq_along(vectNom)) {
+  subset_name <- paste0(vectNom[i], "habitat")
+  assign(subset_name, subset(habitat, IdPE %in% listSubsets[[vectNom[i]]]))
+  
+  # Modify column 20 with corresponding 'Taille' value
+  temp_df <- get(subset_name)
+  temp_df[, 18] <- especes$Taille[i]
+  assign(subset_name, temp_df)
+}
+```
+
+
+faire les dataframes 
+```{r eval=FALSE, include=FALSE}
+Myohabitat = subset(habitat, IdPE %in% listSubsets$Myo); Myohabitat[,18] = especes$Taille[1]
+Gemhabitat = subset(habitat, IdPE %in% listSubsets$Gem); Gemhabitat[,18] = especes$Taille[2]
+Mehhabitat = subset(habitat, IdPE %in% listSubsets$Meh); Mehhabitat[,18] = especes$Taille[3]
+Colhabitat = subset(habitat, IdPE %in% listSubsets$Col); Colhabitat[,18] = especes$Taille[4]
+Lonhabitat = subset(habitat, IdPE %in% listSubsets$Lon); Lonhabitat[,18] = especes$Taille[5]
+Cirhabitat = subset(habitat, IdPE %in% listSubsets$Cir); Cirhabitat[,18] = especes$Taille[6]
+Euhhabitat = subset(habitat, IdPE %in% listSubsets$Euh); Euhhabitat[,18] = especes$Taille[7]
+Orchabitat = subset(habitat, IdPE %in% listSubsets$Orc); Orchabitat[,18] = especes$Taille[8]
+Eujhabitat = subset(habitat, IdPE %in% listSubsets$Euj); Eujhabitat[,18] = especes$Taille[9]
+Cofhabitat = subset(habitat, IdPE %in% listSubsets$Cof); Cofhabitat[,18] = especes$Taille[10]
+Dephabitat = subset(habitat, IdPE %in% listSubsets$Dep); Dephabitat[,18] = especes$Taille[11]
+Mashabitat = subset(habitat, IdPE %in% listSubsets$Mas); Mashabitat[,18] = especes$Taille[12]
+Mafhabitat = subset(habitat, IdPE %in% listSubsets$Maf); Mafhabitat[,18] = especes$Taille[13]
+Saahabitat = subset(habitat, IdPE %in% listSubsets$Saa); Saahabitat[,18] = especes$Taille[14]
+Elmhabitat = subset(habitat, IdPE %in% listSubsets$Elm); Elmhabitat[,18] = especes$Taille[15]
+Tulhabitat = subset(habitat, IdPE %in% listSubsets$Tul); Tulhabitat[,18] = especes$Taille[16]
+```
+on a les positions des oiseaux par espèces dans les n° IDPG
+
+faire les Chi² pour voir si la taille est indépendente chez chaque espèces : 
+
+
+```{r boucle chatty}
+chi_results <- list()
+for (nom in vectNom) {
+  subset_name <- paste0(nom, "habitat")
+  temp_df <- get(subset_name)
+  
+  if ("bati" %in% colnames(temp_df)) {  # Ensure 'bati' column exists
+    chi_results[[nom]] <- chisq.test(temp_df$bati)
+  } else {
+    chi_results[[nom]] <- paste("Column 'bati' not found in", subset_name)
+  }
+}
+```
+
+
+malaise,
+
+on regrope par intervalle de taille 
+
+test cor.test entre taille et urbanisation
+
+```{r}
+meanList = c()
+
+meanList = append(meanList, mean(Myohabitat$bati))
+meanList = append(meanList, mean(Gemhabitat$bati))
+meanList = append(meanList, mean(Mehhabitat$bati))
+meanList = append(meanList, mean(Colhabitat$bati))
+meanList = append(meanList, mean(Lonhabitat$bati))
+meanList = append(meanList, mean(Cirhabitat$bati))
+meanList = append(meanList, mean(Euhhabitat$bati))
+meanList = append(meanList, mean(Orchabitat$bati))
+meanList = append(meanList, mean(Eujhabitat$bati))
+meanList = append(meanList, mean(Cofhabitat$bati))
+meanList = append(meanList, mean(Dephabitat$bati))
+meanList = append(meanList, mean(Mashabitat$bati))
+meanList = append(meanList, mean(Mafhabitat$bati))
+meanList = append(meanList, mean(Saahabitat$bati))
+meanList = append(meanList, mean(Elmhabitat$bati))
+meanList = append(meanList, mean(Tulhabitat$bati))
 
 ```
+
+
+on a les moyennes : chi² time :)
+
+### vérification validité cor.test
+
+#### vérification normalité
+
+```{r}
+#normalité : 
+shapiro.test(meanList)
+shapiro.test(especes$Taille)
+```
+données normales
+
+
+#### vérification linéralité
+
+```{r}
+plot(meanList,especes$Taille,
+     pch =3, col = "red3",
+     ylab = "taille des especes",xlab = "moyenne urbanisation par espèces") 
+```
+
+Bah pas fou mais globalement avec clémence, on semble voir une tendence à la décroissance
+
+#### test homoscédasticité
+
+```{r}
+library(lmtest)
+bptest(meanList~especes$Taille)
+```
+
+données homostasiques 
+
+Conditions valides : happy 
+
+```{r}
+cor.test(especes$Taille,meanList,
+         method = "pearson")
+
+cor.test(especes$Taille,meanList,
+         method = "kendall")
+
+cor.test(especes$Taille,meanList,
+         method = "spearman")
+
+```
+
+t = -1.7395, df = 14, p-value = 0.1039
+alternative hypothesis: true correlation is not equal to 0
+
+95 percent confidence interval:
+ -0.75872141  0.09372149
+
+sample estimates:
+       cor 
+-0.4215692 
+
+
+## Conclusion : 
+
+La taille de l'espèce et le taux d'urbanisation est négativement corrélé
+
+======================= QUESTION 5 ======================= 
+
+--> habitat : urbanisation
+--> espèces : protégée ou non ?
+
+==> est-ce que les oiseaux protégés sont davantages présents dans les milieux urbains : protection intense par l'Homme, abondance de nourriture, absence de prédateurs, habitats cachés et sécuritaires...
+
+## ANALYSE :
+==> chi² entre habitat `bati et especes` IUCN
+
+en premier on va faire une ACM entre les espèces sauf la taille et 
+
+```{r}
+vectCol = c("IdPE","agri","arbu","prai","foret","bati")
+habitaEnv.subset = subset(habitat,select = vectCol)
+
+```
+
+
+## on vas chercher si ya une corrélation entre espèces protégé et l'espèce de volatile : 
+
+```{r}
+# Récupération des noms des colonnes correspondant aux espèces (colonnes 2 à 17)
+vectNom <- c("Myo", "Gem", "Meh", "Col", "Lon", "Cir", "Euh", "Orc", "Euj", "Cof", "Dep", "Mas", "Maf", "Saa", "Elm", "Tul")
+
+# Création d'une liste vide pour stocker les sous-ensembles
+listSubsets = list()
+# Parcours de toutes les espèces
+for (i in 1:length(vectNom)) {
+  especesActu = vectNom[i]
+  # Extraction des numéros de lieu (IdPE) où l'espèce a une présence (valeur 1)
+  foosubset = commu$IdPE[commu[[especesActu]] == 1]
+  listSubsets[[especesActu]] = foosubset
+}
+
+# /!\ va faire vla des lignes de variables :
+```
+
+```{r eval=T, include=FALSE}
+Myohabitat = subset(habitat, IdPE %in% listSubsets$Myo); Myohabitat[,18] = especes$Taille[1]
+Gemhabitat = subset(habitat, IdPE %in% listSubsets$Gem); Gemhabitat[,18] = especes$Taille[2]
+Mehhabitat = subset(habitat, IdPE %in% listSubsets$Meh); Mehhabitat[,18] = especes$Taille[3]
+Colhabitat = subset(habitat, IdPE %in% listSubsets$Col); Colhabitat[,18] = especes$Taille[4]
+Lonhabitat = subset(habitat, IdPE %in% listSubsets$Lon); Lonhabitat[,18] = especes$Taille[5]
+Cirhabitat = subset(habitat, IdPE %in% listSubsets$Cir); Cirhabitat[,18] = especes$Taille[6]
+Euhhabitat = subset(habitat, IdPE %in% listSubsets$Euh); Euhhabitat[,18] = especes$Taille[7]
+Orchabitat = subset(habitat, IdPE %in% listSubsets$Orc); Orchabitat[,18] = especes$Taille[8]
+Eujhabitat = subset(habitat, IdPE %in% listSubsets$Euj); Eujhabitat[,18] = especes$Taille[9]
+Cofhabitat = subset(habitat, IdPE %in% listSubsets$Cof); Cofhabitat[,18] = especes$Taille[10]
+Dephabitat = subset(habitat, IdPE %in% listSubsets$Dep); Dephabitat[,18] = especes$Taille[11]
+Mashabitat = subset(habitat, IdPE %in% listSubsets$Mas); Mashabitat[,18] = especes$Taille[12]
+Mafhabitat = subset(habitat, IdPE %in% listSubsets$Maf); Mafhabitat[,18] = especes$Taille[13]
+Saahabitat = subset(habitat, IdPE %in% listSubsets$Saa); Saahabitat[,18] = especes$Taille[14]
+Elmhabitat = subset(habitat, IdPE %in% listSubsets$Elm); Elmhabitat[,18] = especes$Taille[15]
+Tulhabitat = subset(habitat, IdPE %in% listSubsets$Tul); Tulhabitat[,18] = especes$Taille[16]
+```
+
+
+on va faire comme a la Q4 mais avec plus de variable
+
+```{r truc nul bouclé par chatty}
+# Liste des noms d'habitat
+habitat_names <- c("Myohabitat", "Gemhabitat", "Mehhabitat", "Colhabitat", "Lonhabitat", 
+                   "Cirhabitat", "Euhhabitat", "Orchabitat", "Eujhabitat", "Cofhabitat", 
+                   "Dephabitat", "Mashabitat", "Mafhabitat", "Saahabitat", "Elmhabitat", "Tulhabitat")
+
+# liste des diminutif des noms
+vectNom <- c("Myo", "Gem", "Meh", "Col", "Lon", "Cir", "Euh", "Orc", "Euj",
+             "Cof", "Dep", "Mas", "Maf", "Saa", "Elm", "Tul")
+
+# Liste des colonnes d'intérêt
+vectCol <- c("agri", "arbu", "prai", "foret", "bati")
+
+# Initialisation d'une liste pour stocker les données
+meanList <- data.frame(matrix(ncol = length(vectCol) + 1, nrow = length(habitat_names)))
+
+# Nommer les colonnes du dataframe
+colnames(meanList) <- c("habitat", vectCol)
+
+# Remplir le dataframe
+for (i in seq_along(habitat_names)) {
+  habitat <- habitat_names[i]
+  habitat_data <- get(habitat)  # Récupération du dataframe
+  
+  # Calcul des moyennes pour chaque colonne d'intérêt
+  mean_values <- sapply(vectCol, function(col) mean(habitat_data[[col]], na.rm = TRUE))
+  
+  # Stockage des résultats
+  meanList[i, ] <- c(habitat, mean_values)
+}
+
+# Convertir la colonne 'habitat' en facteur ou caractère
+meanList$habitat <- as.character(vectNom)
+
+# Affichage du résultat
+meanList = data.frame(meanList)
+
+# Conversion des colonnes en numérique car bozo est char
+meanList[,-1] <- lapply(meanList[,-1], as.numeric)
+```
+
+faire les dataframes 
+
+ACM entre les moyennes et les espèces : 
+
+```{r}
+ACM_Espèces = dudi.acm(especes[,-6],
+                       scannf = FALSE, nf = 2)
+
+boxplot(ACM_Espèces)
+```
+
+### AFD pour expliquer espèces par leur moyenne intra-espèces : 
+
+#### 1 faire l'ACP
+
+```{r}
+acp.meanhabi = dudi.pca(meanList[,-1],
+         center = T, scale = T,
+         scannf = FALSE, nf = 2)
+```
+
+#### 2 faire une AFC
+
+```{r}
+acm.espèces = dudi.acm(as.data.frame(especes[-6]),
+                       scannf = FALSE, nf = 2)
+boxplot(acm.espèces)
+```
+
+
+```{r}
+coinertie = coinertia(acm.espèces,acp.meanhabi,
+                      scannf = FALSE, nf = 2); summary(coinertie)
+
+s.corcircle(coinertie$li)
+
+plot(coinertie)
+```
+
+on arrive a séparer les espèces en fonctions decès variables environnementales
+
+X = acm
+Y = acp
+
+==> conclure :
+
+l'ACP explique super bien la co-inertie
+l'ACM moins mais explique quand même les 2 axes
+
+Les 2 ont une bonne corrélation car les projection de tabX et tabY (les projections des 2 axes) sont très proches.
+
+on voit que les variables espèces sont corrélée avec les variables
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

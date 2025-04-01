@@ -20,6 +20,8 @@ library(tidyverse)
 library(ade4)
 ```
 
+======================= QUESTION 3 =======================
+
 --> habitat : urbanisation
 --> communautés : répartition des espèces
 

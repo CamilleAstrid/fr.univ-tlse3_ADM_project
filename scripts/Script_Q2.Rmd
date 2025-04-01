@@ -337,3 +337,5 @@ Global : on ne peut pas classer la taille des espèces en fonction de l’enviro
 Cependant on voit que on peut séparer les tailles des espèces par l’environnement
 
 
+
+

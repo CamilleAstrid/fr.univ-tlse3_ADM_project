@@ -71,8 +71,6 @@ for (i in 1:length(vectNom)) {
 ```
 
 ```{r eval=T, include=FALSE}
-
-
 Myohabitat = subset(habitat, IdPE %in% listSubsets$Myo); Myohabitat[,18] = especes$Taille[1]
 Gemhabitat = subset(habitat, IdPE %in% listSubsets$Gem); Gemhabitat[,18] = especes$Taille[2]
 Mehhabitat = subset(habitat, IdPE %in% listSubsets$Meh); Mehhabitat[,18] = especes$Taille[3]
@@ -190,6 +188,7 @@ on voit que les variables espèces sont corrélée avec les variables environnem
 
 mais les 2 ont des structures différentes indiqué par RV = 0.3
   ==> si proche de 1 = même structure
+
 
 
 
