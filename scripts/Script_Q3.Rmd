@@ -18,8 +18,47 @@ knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="F
 ```{r, include= F}
 library(tidyverse)
 library(ade4)
-
-#library(rpart)
-
-#library(MASS)
 ```
+
+--> habitat : urbanisation
+--> communautés : répartition des espèces
+
+==> impact de l'urbanisation sur la répartition attendues naturelles des espèces
+--> moins d'espèces 1 ou plus d'espèces 2 en zones urbaines que rurales...
+
+**ANALYSE** :
+==> chi² entre commu et habitat$bati
+==> ACP(commu[,2:length(commu[1,])]~habitat$bati)
+
+==> conclure : certaines espèces fuient les milieux urbains quand d'autres si refugent
+
+
+# Ouverture des documents
+
+```{r}
+habitat = read.table("../data/habitat.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+especes = read.table("../data/especes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+commu = read.table("../data/communautes.tsv", sep = "\t",
+                     stringsAsFactors = T, header = T, na.strings = T)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

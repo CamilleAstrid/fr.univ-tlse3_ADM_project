@@ -19,7 +19,7 @@ knitr::opts_chunk$set(fig.align="center", fig.width=6, fig.height=6, fig.path="F
 Donc si p>0.05 --> on ne rejette pas H0, les données sont indépendantes, pas de relation entre elles ni d'implication.
 Donc si p<=0.05 --> on rejette H0, les données sont dépendantes, il existe une relation entre elles.
 
-```{r, include= F}
+```{r, warning=FALSE}
 library(tidyverse)
 library(ade4)
 library(vegan)
@@ -42,6 +42,7 @@ library(vegan)
 
 ==> conclure : comportements différents selon la qualité de vie du milieu (caractéristiques ciblées par l'analyse)
 
+suite analyse pour q3
 
 # Ouverture des documents
 
@@ -63,29 +64,29 @@ habitat_clean = habitat[,-1]
 esp = colnames(commu_clean[1,])
 hab = colnames(habitat_clean[1,])
 
-write(x = "Test de chi2 sur la répartition d'une espèce d'oiseau en fonction de l'environnement", file = "chi-2_q2_export.txt", append = F)
+write(x = "Test de chi2 sur la répartition d'une espèce d'oiseau en fonction de l'environnement", file = "chi-2_q1_export.txt", append = F)
 n=0
 for (i in 1:length(commu_clean[1,])){
   n=n+1
   commuI = paste("\n----------", esp[n], "----------")
-  write(x = commuI, file = "chi-2_q2_export.txt", append = T)
+  write(x = commuI, file = "chi-2_q1_export.txt", append = T)
   m = 0
   for (j in 1:length(habitat_clean[1,])){
     m=m+1
     chi2 = chisq.test(commu_clean[,i], habitat_clean[,j])
     habitatI = paste(hab[m], ":", chi2$p.value)
-    write(x = habitatI, file = "chi-2_q2_export.txt", append = T)
+    write(x = habitatI, file = "chi-2_q1_export.txt", append = T)
   }
 }
 
-write(x = "Résultats d'indépendance entre les données", file = "chi-2_q2_export_indep.txt", append = F)
-write(x = "Résultats de dépendance entre les données", file = "chi-2_q2_export_dep.txt", append = F)
+write(x = "Résultats d'indépendance entre les données", file = "chi-2_q1_export_indep.txt", append = F)
+write(x = "Résultats de dépendance entre les données", file = "chi-2_q1_export_dep.txt", append = F)
 n=0
 for (i in 1:length(commu_clean[1,])){
   n=n+1
   commuI = paste("\n----------", esp[n], "----------")
-  write(x = commuI, file = "chi-2_q2_export_indep.txt", append = T)
-  write(x = commuI, file = "chi-2_q2_export_dep.txt", append = T)
+  write(x = commuI, file = "chi-2_q1_export_indep.txt", append = T)
+  write(x = commuI, file = "chi-2_q1_export_dep.txt", append = T)
   m = 0
   for (j in 1:length(habitat_clean[1,])){
     m=m+1
@@ -93,10 +94,10 @@ for (i in 1:length(commu_clean[1,])){
     habitatI = paste(hab[m], ":", chi2$p.value)
     
     if (chi2$p.value<0.05){
-      write(x = habitatI, file = "chi-2_q2_export_dep.txt", append = T)
+      write(x = habitatI, file = "chi-2_q1_export_dep.txt", append = T)
     }
     else{
-      write(x = habitatI, file = "chi-2_q2_export_indep.txt", append = T)
+      write(x = habitatI, file = "chi-2_q1_export_indep.txt", append = T)
     }
   }
 }
@@ -140,7 +141,7 @@ scatter(afc1)
 
 # Couplage de tableaux entre AFC (tableau espèce) et une ACP normée (tableau habitat)
 
-```{r}
+```{r, warning=FALSE}
 # Log des données
 caract_habitat = habitat[,-(1:3)]
 log_habitat = log(caract_habitat +1)
@@ -168,7 +169,7 @@ plot(cca)
 
 # ACC sur les données HABITAT x COMMU
 
-```{r}
+```{r, warning=FALSE}
 acc1 = cca(commu[,-1], caract_habitat)
 plot(acc1)
 #répartition lisière de foret et foret à l'opposé, coeur de la foret corrélé à foret
@@ -183,43 +184,82 @@ plot(acc3)
 # urbanisation opposé à réseau hydrographique, surface agricole opposé à foret
 ```
 
+# Localisation des espèces en fonction des autres
 
+```{r, warning=FALSE}
+#test de la répartition d'une espèce d'oiseau en fonction des autres espèces
+commu_clean = commu[,-1]
+esp = colnames(commu_clean[1,])
+taille = length(commu_clean[1,])-1
 
+write(x = "Test de chi2 sur la répartition d'une espèce d'oiseau en fonction des autres", file = "chi-2_q1_export2.txt", append = F)
+for (i in 1:taille){
+  commuI = paste("\n----------", esp[i], "----------")
+  write(x = commuI, file = "chi-2_q1_export2.txt", append = T)
+  deb = i+1
+  for (j in deb:taille){
+    chi2 = chisq.test(commu_clean[,i], commu_clean[,j])
+    espI = paste(esp[j], ":", chi2$p.value)
+    write(x = espI, file = "chi-2_q1_export2.txt", append = T)
+  }
+}
 
+write(x = "Résultats d'indépendance entre les données", file = "chi-2_q1_export2_indep.txt", append = F)
+write(x = "Résultats de dépendance entre les données", file = "chi-2_q1_export2_dep.txt", append = F)
+for (i in 1:taille){
+  commuI = paste("\n----------", esp[i], "----------")
+  write(x = commuI, file = "chi-2_q1_export2_indep.txt", append = T)
+  write(x = commuI, file = "chi-2_q1_export2_dep.txt", append = T)
+  deb = i+1
+  for (j in deb:taille){
+    chi2 = chisq.test(commu_clean[,i], commu_clean[,j])
+    espI = paste(esp[j], ":", chi2$p.value)
+    
+    if (chi2$p.value<0.05){
+      write(x = espI, file = "chi-2_q1_export2_dep.txt", append = T)
+    }
+    else{
+      write(x = espI, file = "chi-2_q1_export2_indep.txt", append = T)
+    }
+  }
+}
+```
 
+discrim needs class
 
+# Co-inertie
 
+```{r, warning=FALSE}
+couplage = cbind(commu[,-1], habitat[,-1])
+habitat_numerique = habitat[,-(1:3)]
 
+#AFC sur tableau de comptage
+afc_commu = dudi.coa(commu[,-1], nf=2, scannf = F)
+scatter(afc_commu)
 
+#ACP normée sur milieu
+acp_habitat = dudi.pca(habitat_numerique, scale=T, nf = 2, scannf = F)
+```
 
+```{r, warning=FALSE, eval=TRUE, include=FALSE}
+#co-inertie (ACF, ACP)
+afc_commu$lw
+acp_habitat$lw
+#--> poids des lignes non uniformes
+```
 
+```{r, warning=FALSE}
+#set même poids partout
+acp_habitat$lw <- rep(1, length(acp_habitat$lw))
+afc_commu$lw <- rep(1, length(afc_commu$lw))
 
+coinertie = coinertia(acp_habitat, afc_commu, scannf = F, nf = 2)
+plot(coinertie)
+scatter(coinertie)
 
+#AFC sur couplage
+afc_couplage = dudi.coa(couplage, scannf = F, nf = 2)
+scatter(afc_couplage)
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
