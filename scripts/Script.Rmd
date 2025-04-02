@@ -137,7 +137,7 @@ plot(commu)
 res = chisq.test(commu[,2:17]) ; res
 # Indépendance des données
 
-afc1 = dudi.coa(commu, nf=2, scannf = F) ; afc1
+afc1 = dudi.coa(commu[,-1], nf=2, scannf = F) ; afc1
 barplot(afc1$eig)
 scatter(afc1)
 ```
