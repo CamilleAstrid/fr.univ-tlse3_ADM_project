@@ -28,6 +28,11 @@ library(ade4)
 library(vegan)
 ```
 
+```{r include=FALSE}
+par(mfrow = c(1,1))
+```
+
+
 --> communautés : quelles sont les espèces qui vivent ensemble ? même localisation ? exemple : Est-ce que pinson toujours avec pie ?
 --> habitat : différentes répartitions selon la localisation ? exemple : Quand il fait chaud, les pinsons ne blairent plus les pies ?
 
@@ -262,6 +267,7 @@ scatter(coinertie)
 
 #AFC sur couplage
 afc_couplage = dudi.coa(couplage, scannf = F, nf = 2)
+
 scatter(afc_couplage)
 ```
 
