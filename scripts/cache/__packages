@@ -13,3 +13,6 @@ forcats
 lubridate
 zoo
 lmtest
+permute
+lattice
+vegan
