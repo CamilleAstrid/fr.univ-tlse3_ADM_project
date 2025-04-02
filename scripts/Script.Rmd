@@ -177,12 +177,12 @@ acc1 = cca(commu[,-1], caract_habitat)
 plot(acc1)
 #répartition lisière de foret et foret à l'opposé, coeur de la foret corrélé à foret
 
-acc2 = cca(commu[,-1] ~ bati + agri + arbu + hydro + prai + foret, caract_habitat)
+acc2 = cca(commu[,-1] ~ bati + agri + arbu + fcoeur + prai + foret, caract_habitat)
 plot(acc2)
 #explication de la répartition avec les conditions occupations du sol et urbanisation
 #agri, bati, hydro, foret à conserver
 
-acc3 = cca(commu[,-1] ~ bati + agri + hydro + foret, caract_habitat)
+acc3 = cca(commu[,-1] ~ bati + agri + fcoeur + foret, caract_habitat)
 plot(acc3)
 # urbanisation opposé à réseau hydrographique, surface agricole opposé à foret
 ```
