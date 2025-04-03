@@ -375,7 +375,7 @@ boxplot(ExMat,
      log = "y")
 ```
 
-Boxplot avec une normalisation au log10()
+Boxplot avec une normalisation a la moyenne
 
 ```{r}
 ExMat.meannorm = scale(ExMat, center = T, scale = T)
@@ -390,9 +390,9 @@ normalisation centré réduite à la moyenne
 Des boxplots plus interresant (par classe): 
 
 ```{r}
-par(mfrow = c(1,2))
 
 #   1. Point d'écoute : 
+par(mfrow = c(1,2))
 
 plot(ExMat[,1:2],
      pch = 3, col = "brown")
@@ -405,7 +405,8 @@ plot(acp.Ecoute$li,
 #corrélation +
 
 #  2. Occupation du sol : 
-  
+par(mfrow = c(1,3))
+
 boxplot(ExMat[,3:7],
      pch = 3, col = "darkgreen")
 
@@ -414,9 +415,13 @@ acp.Ocuu = dudi.pca(ExMat[,3:7], center = TRUE, scale = TRUE,
 plot(acp.Ocuu$li,
      pch = 3, col = "darkgreen")
 
+s.corcircle(acp.Ocuu$co)
+
 # pas de corrélation
 
-#  3. Fragmentation : 
+#  3. Fragmentation :
+
+par(mfrow = c(1,3))
 
 boxplot(ExMat[,8:11],
      pch = 3, col = "salmon")
@@ -427,9 +432,12 @@ acp.Frag = dudi.pca(ExMat[,8:11], center = TRUE, scale = TRUE,
 plot(acp.Frag$li,
      pch = 3, col = "salmon")
 
+s.corcircle(acp.Frag$co)
+
 # pas de corrélation
 
 #  4. Topographie
+par(mfrow = c(1,2))
 
 plot(ExMat[,12:13],
      pch = 3, col = "black")
@@ -439,9 +447,11 @@ acp.Topo = dudi.pca(ExMat[,12:13], center = TRUE, scale = TRUE,
 plot(acp.Topo$li,
      pch = 3, col = "black")
 
-# corrélation +
+
+# corrélatioacp.Topo# corrélation +
 
 #  5. condition topographique
+par(mfrow = c(1,2))
 
 plot(ExMat[,14:15],
      pch = 3, col = "darkblue")
@@ -454,6 +464,7 @@ plot(acp.CondTopo$li,
 # corrélation -
 
 #  6. Urbanisation
+par(mfrow = c(1,2))
 
 par(mfrow = c(1,1))
 boxplot(ExMat[,16],
@@ -463,11 +474,14 @@ boxplot(ExMat[,16],
 
 # 7. Total
 par(mfrow = c(1,2))
+
 boxplot(ExMat,
      pch = 3, col = "darkred",
      las = 2, log = "y")
 acp.Total = dudi.pca(ExMat[,1:15], center = TRUE, scale = TRUE,
                      scannf = FALSE, nf = 2)
+
+s.corcircle(acp.Total$co)
 
 # bordel imonde
 ```
@@ -649,7 +663,7 @@ for (i in 1:length(vectNom)) {
 # /!\ va faire vla des lignes de variables :
 ```
 
-```{r boucle chatty}
+```{r création du vecteur bouclé par chatty}
 for (i in seq_along(vectNom)) {
   subset_name <- paste0(vectNom[i], "habitat")
   assign(subset_name, subset(habitat, IdPE %in% listSubsets[[vectNom[i]]]))
@@ -686,7 +700,7 @@ on a les positions des oiseaux par espèces dans les n° IDPG
 faire les Chi² pour voir si la taille est indépendente chez chaque espèces : 
 
 
-```{r boucle chatty 2}
+```{r boucle chatty 2 (cette fois-ci, ya la preuve au dessus)}
 chi_results <- list()
 for (nom in vectNom) {
   subset_name <- paste0(nom, "habitat")
@@ -752,7 +766,7 @@ plot(meanList,especes$Taille,
      ylab = "taille des especes",xlab = "moyenne urbanisation par espèces") 
 ```
 
-Bah pas fou mais globalement avec clémence, on semble voir une tendence à la décroissance
+Bah pas fou mais globalement avec clémence, on semble voir une tendence à la décroissante
 
 #### test homoscédasticité
 
@@ -807,7 +821,6 @@ en premier on va faire une ACM entre les espèces sauf la taille et
 ```{r}
 vectCol = c("IdPE","agri","arbu","prai","foret","bati")
 habitaEnv.subset = subset(habitat,select = vectCol)
-
 ```
 
 
@@ -895,16 +908,6 @@ meanList[,-1] <- lapply(meanList[,-1], as.numeric)
 
 faire les dataframes 
 
-ACM entre les moyennes et les espèces : 
-
-```{r}
-ACM_Espèces = dudi.acm(especes[,-6],
-                       scannf = FALSE, nf = 2)
-
-boxplot(ACM_Espèces)
-```
-
-### AFD pour expliquer espèces par leur moyenne intra-espèces : 
 
 #### 1 faire l'ACP
 
