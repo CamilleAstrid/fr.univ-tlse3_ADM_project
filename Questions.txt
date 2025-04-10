@@ -4,7 +4,7 @@ DATA
 * habitat = habitat
 * espèces = especes
 
-======================= QUESTION 1) ======================= CAM'YAN
+======================= QUESTION 1) ======================= CamilleAstrid
 
 --> communautés : quelles sont les espèces qui vivent ensemble ? même localisation ? exemple : Est-ce que pinson toujours avec pie ?
 --> habitat : différentes répartitions selon la localisation ? exemple : Quand il fait chaud, les pinsons ne blairent plus les pies ?
@@ -23,7 +23,7 @@ ANALYSE :
 
 ==> conclure : comportements différents selon la qualité de vie du milieu (caractéristiques ciblées par l'analyse)
 
-======================= QUESTION 2) ======================= N'JAN CAT
+======================= QUESTION 2) ======================= AMOUROUX J.
 
 --> espèces : caractéristiques
 --> habitat : caractéristiques
@@ -44,7 +44,7 @@ tab2 --> especes
 
 ==> conclure : physiologie différente selon les caractéristiques du milieu
 
-======================= QUESTION 3) ======================= CAM'YAN
+======================= QUESTION 3) ======================= CamilleAstrid
 
 --> habitat : urbanisation
 --> communautés : répartition des espèces
@@ -58,7 +58,7 @@ ANALYSE :
 
 ==> conclure : certaines espèces fuient les milieux urbains quand d'autres si refugent
 
-======================= QUESTION 4) ======================= N'JAN CAT
+======================= QUESTION 4) ======================= AMOUROUX J.
 
 --> habitat : urbanisation
 --> espèces : taille
@@ -74,7 +74,7 @@ l'urbanisation diminiue la taille -> moins de nourriture naturelle accessible, p
 OU
 l'urbanisation augmente la taille -> plus de nourriture humaine accessible (gras, sucré...), moins de prédation globale (pas de serpent, pas de chats sauvages, pas d'aigles...)
 
-======================= QUESTION 5) ======================= N'JAN CAT
+======================= QUESTION 5) ======================= AMOUROUX J.
 
 --> habitat : urbanisation
 --> espèces : protégée ou non ?
